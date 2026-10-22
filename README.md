@@ -8,6 +8,14 @@
 
 > **Jarvis V2.1** is a high-performance, offline-first, autonomous desktop AI assistant engineered for Windows. Powered by a decoupled Pub/Sub EventBus, an 8-stage multilingual NLU pipeline, multi-tier cognitive memory, biometric face authentication, proactive habit learning, and 35+ domain automation plugins.
 
+## 🖥️ JARVIS Studio Preview
+
+![JARVIS Studio dashboard with sample preview data](docs/images/jarvis-studio-dashboard.png)
+
+*The screenshot shows the PySide6 Studio dashboard; displayed system metrics are sample data.*
+
+If Jarvis looks useful, please consider starring the repository to help others discover it.
+
 ---
 
 ## Conversation and personal memory
@@ -43,12 +51,12 @@ and no model or dependency download is required for these improvements.
 
 | Document | Purpose |
 |---|---|
-| [**`README.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/README.md) | **Project guide, setup, usage instructions, & CLI/GUI execution** |
-| [**`AGENTS.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/AGENTS.md) | **Operating rules, collision prevention, & regression playbooks for AI agents** |
-| [**`ARCHITECTURE.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/ARCHITECTURE.md) | **Subsystem architecture, data flows, state machines, & storage schemas** |
-| [**`FEATURES.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/FEATURES.md) | **Authoritative registry of all implemented features, intents, and risk tiers** |
-| [**`ROADMAP.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/ROADMAP.md) | **Strategic roadmap for upcoming versions (v2.2, v2.5, v3.0)** |
-| [**`CHANGELOG.md`**](file:///c:/Users/Admin/Documents/Jarvis_V2.1/CHANGELOG.md) | **Version history, feature additions, fixes, and release notes** |
+| [**`README.md`**](README.md) | **Project guide, setup, usage instructions, & CLI/GUI execution** |
+| [**`AGENTS.md`**](AGENTS.md) | **Operating rules, collision prevention, & regression playbooks for AI agents** |
+| [**`ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | **Subsystem architecture, data flows, state machines, & storage schemas** |
+| [**`FEATURES.md`**](docs/FEATURES.md) | **Authoritative registry of all implemented features, intents, and risk tiers** |
+| [**`ROADMAP.md`**](docs/ROADMAP.md) | **Strategic roadmap for upcoming versions (v2.2, v2.5, v3.0)** |
+| [**`CHANGELOG.md`**](docs/CHANGELOG.md) | **Version history, feature additions, fixes, and release notes** |
 
 ---
 
@@ -60,7 +68,7 @@ and no model or dependency download is required for these improvements.
 - 🧠 **Multi-Tier Cognitive Memory**: Working, Short-Term, Episodic, Semantic, Procedural, and Activity memory backed by SQLite WAL.
 - 👁️ **Proactive Intelligence**: Non-intrusive background observer tracking active apps and mining recurring habits without external tracking.
 - 🖥️ **Windows 11 Native Integration**: Comprehensive application resolver supporting UWP protocols (`microsoft.windows.camera:`), Start Menu executables, and shell tools.
-- 🎨 **Modern Cyber-Dark GUI**: 9 integrated PySide6 views (Dashboard, Chat, Plugins, Memory, Learning, Workflows, Reminders, Activity Logs, Settings).
+- 🎨 **Modern Cyber-Dark GUI**: 12 integrated PySide6 Studio views, including Dashboard, Chat, Plugins, Memory, Learning, Workflows, Reminders, Activity Logs, Settings, News, Websites, and Stock Suggestions.
 - 🔄 **In-Process Live Reload**: Hot-reloads modified plugins and modules without abruptly crashing or closing the GUI.
 
 ---
