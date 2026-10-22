@@ -1,0 +1,8 @@
+{
+  "name": "apps",
+  "version": "1.0.0",
+  "description": "Windows installed applications manager and launcher.",
+  "author": "Jarvis Team",
+  "permissions": ["process", "system_control"],
+  "enabled": true
+}

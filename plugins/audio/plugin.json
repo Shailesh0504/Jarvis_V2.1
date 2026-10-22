@@ -1,0 +1,8 @@
+{
+  "name": "audio",
+  "version": "1.0.0",
+  "description": "Audio system controller for volume, mute/unmute, and sound device management.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control"],
+  "entrypoint": "plugin.py:AudioPlugin"
+}

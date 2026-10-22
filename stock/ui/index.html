@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS — Stock Query Wizard & Decision Support</title>
+  <style>
+    :root {
+      --bg-base: #070b12;
+      --bg-surface: #0e1626;
+      --bg-surface-elevated: #152238;
+      --border-subtle: #1e2e4a;
+      --border-focus: #00f2fe;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #00f2fe;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --gradient-brand: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 20px -2px rgba(0, 242, 254, 0.3);
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: rgba(14, 22, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #050b14;
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #f8fafc, #94a3b8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--accent-emerald);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 6px var(--accent-emerald);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .section-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s;
+    }
+
+    .section-card:hover {
+      border-color: #2a3f63;
+    }
+
+    .section-card.required-card {
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-pill {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 242, 254, 0.1);
+      color: var(--accent-cyan);
+    }
+
+    .section-pill.optional {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-muted);
+    }
+
+    /* Interactive Grid & Segment Options */
+    .grid-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .grid-options.three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      .grid-options.three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .selectable-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+    }
+
+    .selectable-card:hover {
+      border-color: #3b537d;
+      background: #192a47;
+      transform: translateY(-1px);
+    }
+
+    .selectable-card.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.07);
+      box-shadow: 0 0 14px -3px rgba(0, 242, 254, 0.25);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .selectable-card.selected .card-title {
+      color: var(--accent-cyan);
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* Chip Lists (Multi-Select) */
+    .chip-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .chip:hover {
+      border-color: #3a537d;
+      color: var(--text-primary);
+    }
+
+    .chip.selected {
+      background: rgba(0, 242, 254, 0.12);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Input Controls */
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .input-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .text-input {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .search-filter-input {
+      width: 100%;
+      margin-bottom: 12px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .search-filter-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    /* Live Summary Sidebar */
+    .sidebar-sticky {
+      position: sticky;
+      top: 80px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .summary-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .summary-value.highlight {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .summary-value.not-set {
+      color: var(--accent-amber);
+      font-style: italic;
+    }
+
+    /* Analyze Button */
+    .btn-analyze {
+      width: 100%;
+      background: var(--gradient-brand);
+      color: #040912;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+    }
+
+    .btn-analyze:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(0, 242, 254, 0.45);
+    }
+
+    .btn-analyze:disabled {
+      background: #1e293b;
+      color: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .validation-hint {
+      font-size: 11px;
+      color: var(--accent-amber);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Loading Overlay & Stages */
+    .loading-container {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(0, 242, 254, 0.15);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-stage-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .loading-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Results Dashboard View */
+    .results-view {
+      display: none;
+    }
+
+    .results-header {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: gap;
+      gap: 16px;
+    }
+
+    .results-meta h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .results-meta p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .candidate-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .candidate-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .candidate-card:hover {
+      transform: translateY(-2px);
+      border-color: #2e4469;
+    }
+
+    .cand-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .cand-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .cand-ticker {
+      font-size: 12px;
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .cand-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-emerald);
+      text-align: right;
+    }
+
+    .cand-mcap-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .cand-why-box {
+      background: rgba(16, 185, 129, 0.04);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .cand-why-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      margin-bottom: 6px;
+    }
+
+    .cand-why-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .cand-why-list li::before {
+      content: "✓ ";
+      color: var(--accent-emerald);
+      font-weight: 700;
+    }
+
+    .cand-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--bg-surface-elevated);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .metric-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .cand-risks-box {
+      background: rgba(244, 63, 94, 0.04);
+      border: 1px solid rgba(244, 63, 94, 0.15);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .cand-risks-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-rose);
+      margin-bottom: 6px;
+    }
+
+    .cand-risks-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .cand-risks-list li::before {
+      content: "• ";
+      color: var(--accent-rose);
+      font-weight: 700;
+    }
+
+    .cand-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 10px;
+    }
+
+    .disclaimer-banner {
+      margin-top: 30px;
+      background: rgba(14, 22, 38, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Visual Target Tracker */
+    .target-progression-box {
+      background: #0d1726;
+      border: 1px solid #1f3352;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .target-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .target-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .target-method-badge {
+      font-size: 10px;
+      background: rgba(0, 242, 254, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-weight: 600;
+    }
+
+    .progression-bar-container {
+      position: relative;
+      padding: 26px 8px 36px 8px;
+    }
+
+    .progression-track {
+      position: relative;
+      height: 6px;
+      background: #1c2c45;
+      border-radius: 4px;
+    }
+
+    .progression-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #f43f5e 0%, #38bdf8 50%, #10b981 100%);
+      border-radius: 4px;
+    }
+
+    .progression-pin {
+      position: absolute;
+      top: -24px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .pin-label {
+      background: #0ea5e9;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .pin-marker {
+      font-size: 8px;
+      color: #0ea5e9;
+      line-height: 1;
+      margin-top: -1px;
+    }
+
+    .progression-levels {
+      position: absolute;
+      top: 36px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .level-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 9px;
+      gap: 2px;
+    }
+
+    .mark-name {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .mark-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .exit-mark .mark-name { color: var(--accent-rose); }
+    .exit-mark .mark-val { color: var(--accent-rose); }
+    .ref-mark .mark-name { color: #94a3b8; }
+    .t1-mark .mark-name { color: var(--accent-emerald); }
+    .t1-mark .mark-val { color: var(--accent-emerald); }
+    .t2-mark .mark-name { color: #38bdf8; }
+    .t2-mark .mark-val { color: #38bdf8; }
+
+    .target-footer-notes {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    /* History Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 10, 20, 0.82);
+      backdrop-filter: blur(6px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-dialog {
+      background: #0f1a2e;
+      border: 1px solid #223759;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 860px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #1f3352;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-primary);
+      background: #1c2e4a;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .history-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-icon">J</div>
+      <div>
+        <div class="brand-title">JARVIS Financial Intelligence</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button id="btn-open-history" class="chip" style="border-radius: var(--radius-sm); padding: 6px 14px; background: #132238; border-color: #274169; color: #a0c4ff; display: flex; align-items: center; gap: 6px;">
+        <span>📜</span>
+        <span>Past Recommendations</span>
+      </button>
+      <div class="status-badge" id="market-status-badge">
+        <span class="status-dot"></span>
+        <span id="market-status-text">NSE Market Live</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Recommendation History Modal -->
+  <div id="history-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Permanent Recommendation History & Memory</h3>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+            Immutable historical snapshots preserved at recommendation time with live status tracking.
+          </p>
+        </div>
+        <button id="btn-close-history" class="modal-close-btn">&times;</button>
+      </div>
+      <div id="history-list-container" class="modal-body">
+        <!-- Past recommendation cards rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- Wizard View -->
+    <div id="wizard-view" class="app-layout">
+
+      <!-- Left Column: Filter Form Controls -->
+      <div class="filter-controls">
+
+        <!-- A. Investment Horizon (REQUIRED) -->
+        <div class="section-card required-card" id="card-horizon">
+          <div class="section-header">
+            <h3 class="section-title">A. Investment Horizon</h3>
+            <span class="section-pill">Required</span>
+          </div>
+          <div class="grid-options three-col" id="horizon-options">
+            <div class="selectable-card" data-val="intraday">
+              <span class="card-title">Intraday</span>
+              <span class="card-desc">Same-day settlement</span>
+            </div>
+            <div class="selectable-card selected" data-val="swing_short_term">
+              <span class="card-title">Swing / Short Term</span>
+              <span class="card-desc">Few days to 4 weeks</span>
+            </div>
+            <div class="selectable-card" data-val="1_3_months">
+              <span class="card-title">1–3 Months</span>
+              <span class="card-desc">Quarterly momentum</span>
+            </div>
+            <div class="selectable-card" data-val="3_12_months">
+              <span class="card-title">3–12 Months</span>
+              <span class="card-desc">Medium-term trend</span>
+            </div>
+            <div class="selectable-card" data-val="1_3_years">
+              <span class="card-title">1–3 Years</span>
+              <span class="card-desc">Multi-quarter growth</span>
+            </div>
+            <div class="selectable-card" data-val="3_plus_years">
+              <span class="card-title">3+ Years</span>
+              <span class="card-desc">Long-term compounding</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Investment Objective -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">B. Investment Objective</h3>
+            <span class="section-pill optional">Multi-Select</span>
+          </div>
+          <div class="chip-cloud" id="objective-chips">
+            <div class="chip selected" data-val="capital_growth">Capital Growth</div>
+            <div class="chip" data-val="dividend_income">Dividend Income</div>
+            <div class="chip selected" data-val="momentum">Momentum</div>
+            <div class="chip" data-val="value">Value</div>
+            <div class="chip" data-val="growth">Growth</div>
+            <div class="chip" data-val="breakout">Breakout</div>
+            <div class="chip" data-val="compounder">Long-Term Compounder</div>
+            <div class="chip" data-val="balanced">Balanced</div>
+          </div>
+        </div>
+
+        <!-- C. Risk Preference (REQUIRED) -->
+        <div class="section-card required-card" id="card-risk">
+          <div class="section-header">
+            <h3 class="section-title">C. Risk Preference</h3>
+            <span class="section-pill">Required</span>
+          </div>
+          <div class="grid-options three-col" id="risk-options">
+            <div class="selectable-card" data-val="conservative">
+              <span class="card-title">Conservative</span>
+              <span class="card-desc">Lower volatility preference</span>
+            </div>
+            <div class="selectable-card selected" data-val="moderate">
+              <span class="card-title">Moderate</span>
+              <span class="card-desc">Balanced risk / reward</span>
+            </div>
+            <div class="selectable-card" data-val="aggressive">
+              <span class="card-title">Aggressive</span>
+              <span class="card-desc">Higher volatility acceptable</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- D. Capital / Budget -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">D. Capital / Budget</h3>
+            <span class="section-pill optional">Optional</span>
+          </div>
+          <div class="chip-cloud" id="capital-chips">
+            <div class="chip" data-val="10000">Under ₹10,000</div>
+            <div class="chip" data-val="50000">₹10,000 – ₹50,000</div>
+            <div class="chip selected" data-val="100000">₹50,000 – ₹1 Lakh</div>
+            <div class="chip" data-val="500000">₹1 – ₹5 Lakh</div>
+            <div class="chip" data-val="1000000">₹5 – ₹10 Lakh</div>
+            <div class="chip" data-val="2500000">₹10 Lakh+</div>
+            <div class="chip" data-val="custom">Custom Amount</div>
+          </div>
+          <div class="input-row" id="custom-capital-row" style="display: none;">
+            <div class="input-group">
+              <label class="input-label">Enter Custom Amount (₹)</label>
+              <input type="number" id="custom-capital-input" class="text-input" placeholder="e.g. 75000" min="1000" step="5000">
+            </div>
+          </div>
+        </div>
+
+        <!-- E. Market Segment -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">E. Market Segment</h3>
+            <span class="section-pill optional">Multi-Select</span>
+          </div>
+          <div class="chip-cloud" id="mcap-chips">
+            <div class="chip selected" data-val="large_cap">Large Cap</div>
+            <div class="chip selected" data-val="mid_cap">Mid Cap</div>
+            <div class="chip" data-val="small_cap">Small Cap</div>
+            <div class="chip" data-val="any">Any</div>
+          </div>
+        </div>
+
+        <!-- F. Sector Preference -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">F. Sector Preference</h3>
+            <span class="section-pill optional">Searchable</span>
+          </div>
+          <input type="text" id="sector-search" class="search-filter-input" placeholder="Filter sectors (e.g. IT, Banking, Auto)...">
+          <div class="chip-cloud" id="sector-chips">
+            <div class="chip selected" data-val="Any">Any Sector</div>
+            <div class="chip" data-val="Banking & Finance">Banking & Finance</div>
+            <div class="chip" data-val="IT">IT</div>
+            <div class="chip" data-val="Auto">Auto</div>
+            <div class="chip" data-val="Pharma">Pharma</div>
+            <div class="chip" data-val="FMCG">FMCG</div>
+            <div class="chip" data-val="Energy">Energy</div>
+            <div class="chip" data-val="Infrastructure">Infrastructure</div>
+            <div class="chip" data-val="Defence">Defence</div>
+            <div class="chip" data-val="Telecom">Telecom</div>
+            <div class="chip" data-val="Chemicals">Chemicals</div>
+            <div class="chip" data-val="Metals">Metals</div>
+            <div class="chip" data-val="Consumer">Consumer</div>
+            <div class="chip" data-val="Real Estate">Real Estate</div>
+            <div class="chip" data-val="Manufacturing">Manufacturing</div>
+            <div class="chip" data-val="Renewable Energy">Renewable Energy</div>
+          </div>
+        </div>
+
+        <!-- G. Stock Price Range -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">G. Stock Price Range (₹)</h3>
+            <span class="section-pill optional">Optional</span>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">Minimum Price</label>
+              <input type="number" id="price-min" class="text-input" placeholder="₹0" min="0">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Maximum Price</label>
+              <input type="number" id="price-max" class="text-input" placeholder="₹10,000+" min="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- H. Technical Preference -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">H. Technical Preference</h3>
+            <span class="section-pill optional">Multi-Select</span>
+          </div>
+          <div class="chip-cloud" id="tech-chips">
+            <div class="chip selected" data-val="trend_following">Trend Following</div>
+            <div class="chip selected" data-val="breakout">Breakout</div>
+            <div class="chip" data-val="momentum">Momentum</div>
+            <div class="chip" data-val="pullback">Pullback</div>
+            <div class="chip" data-val="moving_average_setup">Moving Average Setup</div>
+            <div class="chip" data-val="supertrend">SuperTrend</div>
+            <div class="chip" data-val="rsi_confirmation">RSI Confirmation</div>
+            <div class="chip" data-val="volume_confirmation">Volume Confirmation</div>
+            <div class="chip" data-val="no_preference">No Preference</div>
+          </div>
+        </div>
+
+        <!-- I. Fundamental Preference -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">I. Fundamental Preference</h3>
+            <span class="section-pill optional">Multi-Select</span>
+          </div>
+          <div class="chip-cloud" id="fund-chips">
+            <div class="chip selected" data-val="revenue_growth">Revenue Growth</div>
+            <div class="chip selected" data-val="profit_growth">Profit Growth</div>
+            <div class="chip" data-val="eps_growth">EPS Growth</div>
+            <div class="chip" data-val="roe">ROE</div>
+            <div class="chip" data-val="roce">ROCE</div>
+            <div class="chip selected" data-val="low_debt">Low Debt</div>
+            <div class="chip" data-val="cash_flow">Strong Cash Flow</div>
+            <div class="chip" data-val="dividend">Dividend</div>
+            <div class="chip" data-val="valuation">Valuation</div>
+            <div class="chip" data-val="no_preference">No Preference</div>
+          </div>
+        </div>
+
+        <!-- J. Exclusions -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">J. Exclusions</h3>
+            <span class="section-pill optional">Risk Filters</span>
+          </div>
+          <div class="chip-cloud" id="exclusion-chips">
+            <div class="chip selected" data-val="penny_stocks">Exclude Penny Stocks</div>
+            <div class="chip" data-val="volatile">Exclude Highly Volatile Stocks</div>
+            <div class="chip selected" data-val="loss_making">Exclude Loss-Making Companies</div>
+            <div class="chip selected" data-val="high_debt">Exclude High Debt Companies</div>
+            <div class="chip" data-val="low_liquidity">Exclude Low Liquidity Stocks</div>
+            <div class="chip" data-val="none">No Exclusions</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Live Summary Sidebar -->
+      <div class="sidebar-column">
+        <div class="sidebar-sticky">
+          <div class="sidebar-title">
+            <span>Your Stock Search</span>
+            <span style="font-size: 12px; color: var(--accent-cyan);">Live</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Horizon</span>
+            <span class="summary-value highlight" id="sum-horizon">Swing / Short Term</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Risk Preference</span>
+            <span class="summary-value highlight" id="sum-risk">Moderate</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Capital / Budget</span>
+            <span class="summary-value" id="sum-capital">₹50,000 – ₹1 Lakh</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Market Segment</span>
+            <span class="summary-value" id="sum-mcap">Large Cap, Mid Cap</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Sectors</span>
+            <span class="summary-value" id="sum-sectors">Any Sector</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Technical Setup</span>
+            <span class="summary-value" id="sum-tech">Trend Following, Breakout</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Fundamental</span>
+            <span class="summary-value" id="sum-fund">Revenue Growth, Profit Growth, Low Debt</span>
+          </div>
+
+          <button id="btn-submit-analyze" class="btn-analyze">
+            <span>Analyze Stocks</span>
+            <span>➔</span>
+          </button>
+          <div id="validation-hint" class="validation-hint" style="display: none;">
+            Please select required fields (Horizon & Risk).
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-view" class="loading-container">
+      <div class="spinner"></div>
+      <div class="loading-stage-text" id="loading-stage-text">Analyzing market...</div>
+      <div class="loading-subtext" id="loading-subtext">Connecting to authoritative NSE screener engine</div>
+    </div>
+
+    <!-- Results Dashboard View -->
+    <div id="results-view" class="results-view">
+      <div class="results-header">
+        <div class="results-meta">
+          <h2>Screened Stock Candidates</h2>
+          <p id="results-meta-subtitle">Showing candidates matching selected technical and fundamental criteria.</p>
+        </div>
+        <div class="results-actions">
+          <button id="btn-modify-filters" class="btn-secondary">Modify Filters</button>
+          <button id="btn-reanalyze" class="btn-secondary">Re-Analyze</button>
+        </div>
+      </div>
+
+      <div class="candidate-grid" id="candidate-cards-container">
+        <!-- Candidate cards dynamically rendered here -->
+      </div>
+
+      <div class="disclaimer-banner">
+        <strong>DECISION SUPPORT ONLY:</strong> This research screening provides analytical evaluation based on historical price action, publicly disclosed corporate data, and market regime context. It does NOT guarantee returns, predict certainty, or constitute financial/investment tips. Equities carry capital risk. Past performance does not guarantee future results.
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // State Model
+    const state = {
+      horizon: "swing_short_term",
+      risk: "moderate",
+      capital: 100000,
+      objective: ["capital_growth", "momentum"],
+      market_cap: ["large_cap", "mid_cap"],
+      sectors: ["Any"],
+      technical_preferences: ["trend_following", "breakout"],
+      fundamental_preferences: ["revenue_growth", "profit_growth", "low_debt"],
+      price_min: null,
+      price_max: null,
+      exclusions: ["penny_stocks", "loss_making", "high_debt"]
+    };
+
+    // DOM Elements
+    const horizonCards = document.querySelectorAll("#horizon-options .selectable-card");
+    const riskCards = document.querySelectorAll("#risk-options .selectable-card");
+    const objectiveChips = document.querySelectorAll("#objective-chips .chip");
+    const capitalChips = document.querySelectorAll("#capital-chips .chip");
+    const customCapitalRow = document.getElementById("custom-capital-row");
+    const customCapitalInput = document.getElementById("custom-capital-input");
+    const mcapChips = document.querySelectorAll("#mcap-chips .chip");
+    const sectorChips = document.querySelectorAll("#sector-chips .chip");
+    const sectorSearchInput = document.getElementById("sector-search");
+    const techChips = document.querySelectorAll("#tech-chips .chip");
+    const fundChips = document.querySelectorAll("#fund-chips .chip");
+    const exclusionChips = document.querySelectorAll("#exclusion-chips .chip");
+    const priceMinInput = document.getElementById("price-min");
+    const priceMaxInput = document.getElementById("price-max");
+
+    const btnAnalyze = document.getElementById("btn-submit-analyze");
+    const validationHint = document.getElementById("validation-hint");
+    const wizardView = document.getElementById("wizard-view");
+    const loadingView = document.getElementById("loading-view");
+    const resultsView = document.getElementById("results-view");
+    const candidateCardsContainer = document.getElementById("candidate-cards-container");
+    const btnModifyFilters = document.getElementById("btn-modify-filters");
+    const btnReanalyze = document.getElementById("btn-reanalyze");
+
+    // Single-Select Setup for Horizon
+    horizonCards.forEach(card => {
+      card.addEventListener("click", () => {
+        horizonCards.forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        state.horizon = card.getAttribute("data-val");
+        updateSummary();
+      });
+    });
+
+    // Single-Select Setup for Risk
+    riskCards.forEach(card => {
+      card.addEventListener("click", () => {
+        riskCards.forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        state.risk = card.getAttribute("data-val");
+        updateSummary();
+      });
+    });
+
+    // Multi-Select Setup for Chips
+    function attachMultiChipHandler(chips, stateKey) {
+      chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          const val = chip.getAttribute("data-val");
+          if (val === "any" || val === "Any" || val === "no_preference" || val === "none") {
+            chips.forEach(c => c.classList.remove("selected"));
+            chip.classList.add("selected");
+            state[stateKey] = [val];
+          } else {
+            // Remove 'Any' / 'None' if specific item clicked
+            chips.forEach(c => {
+              const cv = c.getAttribute("data-val");
+              if (cv === "any" || cv === "Any" || cv === "no_preference" || cv === "none") {
+                c.classList.remove("selected");
+              }
+            });
+            chip.classList.toggle("selected");
+            state[stateKey] = Array.from(chips)
+              .filter(c => c.classList.contains("selected"))
+              .map(c => c.getAttribute("data-val"));
+
+            if (state[stateKey].length === 0) {
+              const defaultChip = Array.from(chips).find(c => ["any", "Any", "no_preference", "none"].includes(c.getAttribute("data-val")));
+              if (defaultChip) {
+                defaultChip.classList.add("selected");
+                state[stateKey] = [defaultChip.getAttribute("data-val")];
+              }
+            }
+          }
+          updateSummary();
+        });
+      });
+    }
+
+    attachMultiChipHandler(objectiveChips, "objective");
+    attachMultiChipHandler(mcapChips, "market_cap");
+    attachMultiChipHandler(sectorChips, "sectors");
+    attachMultiChipHandler(techChips, "technical_preferences");
+    attachMultiChipHandler(fundChips, "fundamental_preferences");
+    attachMultiChipHandler(exclusionChips, "exclusions");
+
+    // Sector Search Filter
+    sectorSearchInput.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      sectorChips.forEach(chip => {
+        const txt = chip.textContent.toLowerCase();
+        chip.style.display = txt.includes(q) ? "inline-block" : "none";
+      });
+    });
+
+    // Capital Chips Setup
+    capitalChips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        capitalChips.forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+        const val = chip.getAttribute("data-val");
+        if (val === "custom") {
+          customCapitalRow.style.display = "flex";
+          state.capital = parseFloat(customCapitalInput.value) || null;
+        } else {
+          customCapitalRow.style.display = "none";
+          state.capital = parseFloat(val);
+        }
+        updateSummary();
+      });
+    });
+
+    customCapitalInput.addEventListener("input", (e) => {
+      const v = parseFloat(e.target.value);
+      state.capital = (!isNaN(v) && v > 0) ? v : null;
+      updateSummary();
+    });
+
+    priceMinInput.addEventListener("input", (e) => {
+      state.price_min = e.target.value ? parseFloat(e.target.value) : null;
+    });
+
+    priceMaxInput.addEventListener("input", (e) => {
+      state.price_max = e.target.value ? parseFloat(e.target.value) : null;
+    });
+
+    // Live Summary Update
+    function updateSummary() {
+      // Horizon
+      const activeHorizonCard = document.querySelector("#horizon-options .selectable-card.selected");
+      document.getElementById("sum-horizon").textContent = activeHorizonCard ? activeHorizonCard.querySelector(".card-title").textContent : "Not Selected";
+
+      // Risk
+      const activeRiskCard = document.querySelector("#risk-options .selectable-card.selected");
+      document.getElementById("sum-risk").textContent = activeRiskCard ? activeRiskCard.querySelector(".card-title").textContent : "Not Selected";
+
+      // Capital
+      if (state.capital) {
+        document.getElementById("sum-capital").textContent = `₹${state.capital.toLocaleString("en-IN")}`;
+      } else {
+        document.getElementById("sum-capital").textContent = "Any Budget";
+      }
+
+      // Market Cap
+      const mcLabels = Array.from(mcapChips).filter(c => c.classList.contains("selected")).map(c => c.textContent);
+      document.getElementById("sum-mcap").textContent = mcLabels.join(", ") || "Any";
+
+      // Sectors
+      const secLabels = Array.from(sectorChips).filter(c => c.classList.contains("selected")).map(c => c.textContent);
+      document.getElementById("sum-sectors").textContent = secLabels.join(", ") || "Any Sector";
+
+      // Tech
+      const techLabels = Array.from(techChips).filter(c => c.classList.contains("selected")).map(c => c.textContent);
+      document.getElementById("sum-tech").textContent = techLabels.slice(0, 3).join(", ") || "None";
+
+      // Fund
+      const fundLabels = Array.from(fundChips).filter(c => c.classList.contains("selected")).map(c => c.textContent);
+      document.getElementById("sum-fund").textContent = fundLabels.slice(0, 3).join(", ") || "None";
+
+      // Validation check
+      const isValid = Boolean(state.horizon && state.risk);
+      btnAnalyze.disabled = !isValid;
+      validationHint.style.display = isValid ? "none" : "block";
+    }
+
+    // Submit & Run Analysis
+    btnAnalyze.addEventListener("click", () => {
+      runAnalysis();
+    });
+
+    btnModifyFilters.addEventListener("click", () => {
+      resultsView.style.display = "none";
+      wizardView.style.display = "grid";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    btnReanalyze.addEventListener("click", () => {
+      runAnalysis();
+    });
+
+    function runAnalysis() {
+      // Switch to loading
+      wizardView.style.display = "none";
+      resultsView.style.display = "none";
+      loadingView.style.display = "block";
+
+      const stageEl = document.getElementById("loading-stage-text");
+      const subEl = document.getElementById("loading-subtext");
+
+      stageEl.textContent = "Analyzing market...";
+      subEl.textContent = "Querying NSE equity universe & market status";
+
+      setTimeout(() => {
+        stageEl.textContent = "Scanning candidates...";
+        subEl.textContent = "Checking price action and volume metrics";
+      }, 300);
+
+      setTimeout(() => {
+        stageEl.textContent = "Applying filters...";
+        subEl.textContent = "Evaluating technical setups and fundamental ratios";
+      }, 600);
+
+      setTimeout(() => {
+        stageEl.textContent = "Preparing results...";
+        subEl.textContent = "Ranking candidates by multi-factor score";
+      }, 900);
+
+      // Perform actual API call
+      fetch("/api/stocks/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state)
+      })
+      .then(res => res.json())
+      .then(data => {
+        setTimeout(() => {
+          loadingView.style.display = "none";
+          displayResults(data);
+          // Notify backend of workflow completion
+          fetch("/api/stocks/workflow/complete", { method: "POST" }).catch(() => {});
+        }, 1100);
+      })
+      .catch(err => {
+        setTimeout(() => {
+          loadingView.style.display = "none";
+          wizardView.style.display = "grid";
+          alert("Stock analysis request failed: " + err);
+        }, 1100);
+      });
+    }
+
+    function displayResults(data) {
+      resultsView.style.display = "block";
+      candidateCardsContainer.innerHTML = "";
+
+      const subtitleEl = document.getElementById("results-meta-subtitle");
+      subtitleEl.textContent = `Found ${data.total_matched || 0} candidate(s) out of ${data.total_scanned || 0} scanned. Data as of ${data.data_timestamp}.`;
+
+      if (!data.candidates || data.candidates.length === 0) {
+        candidateCardsContainer.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle);">
+            <h3 style="color: var(--accent-amber); margin-bottom: 8px;">No Candidates Matched</h3>
+            <p style="color: var(--text-muted); font-size: 13px;">No stocks matched all selected filters. Try widening sectors, risk tolerance, or price limits.</p>
+          </div>
+        `;
+        return;
+      }
+
+      data.candidates.forEach(cand => {
+        const card = document.createElement("div");
+        card.className = "candidate-card";
+
+        const whyItems = (cand.why_matched || []).map(w => `<li>${w}</li>`).join("");
+        const riskItems = (cand.risks || []).map(r => `<li>${r}</li>`).join("");
+
+        const refP = cand.reference_price || cand.current_price;
+        const invP = cand.invalidation_price || cand.invalidation_level || (refP * 0.95);
+        const t1P = cand.target_1 || (refP * 1.08);
+        const t2P = cand.target_2 || (refP * 1.15);
+        const currP = cand.current_price;
+
+        let progressPct = 50;
+        if (t2P > invP) {
+          progressPct = Math.max(5, Math.min(95, ((currP - invP) / (t2P - invP)) * 100));
+        }
+
+        card.innerHTML = `
+          <div class="cand-head">
+            <div>
+              <div class="cand-name">${cand.company_name}</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                <span class="cand-ticker">${cand.symbol}</span>
+                <span class="cand-mcap-badge">${cand.market_cap}</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• ${cand.sector}</span>
+              </div>
+            </div>
+            <div>
+              <div class="cand-price">${cand.key_metrics.current_price || "₹" + cand.current_price.toFixed(2)}</div>
+              <div style="font-size: 10px; color: var(--accent-cyan); text-align: right; font-weight: 600;">Score: ${cand.score} / 100</div>
+            </div>
+          </div>
+
+          <!-- Visual Target Progression Tracker -->
+          <div class="target-progression-box">
+            <div class="target-box-header">
+              <span class="target-box-title">PRICE TARGET & INVALIDATION TRACKER</span>
+              <span class="target-method-badge">${cand.target_method || 'Risk-Reward Setup'}</span>
+            </div>
+            <div class="progression-bar-container">
+              <div class="progression-track">
+                <div class="progression-fill" style="width: ${progressPct}%;"></div>
+                <div class="progression-pin" style="left: ${progressPct}%;">
+                  <div class="pin-marker">▲</div>
+                  <div class="pin-label">Current ₹${currP.toFixed(2)}</div>
+                </div>
+              </div>
+              <div class="progression-levels">
+                <div class="level-mark exit-mark">
+                  <span class="mark-name">INVALIDATION</span>
+                  <span class="mark-val">₹${cand.invalidation_price ? cand.invalidation_price.toFixed(2) : (invP ? invP.toFixed(2) : 'N/A')}</span>
+                </div>
+                <div class="level-mark ref-mark">
+                  <span class="mark-name">REFERENCE</span>
+                  <span class="mark-val">₹${refP.toFixed(2)}</span>
+                </div>
+                <div class="level-mark t1-mark">
+                  <span class="mark-name">TARGET 1</span>
+                  <span class="mark-val">₹${cand.target_1 ? cand.target_1.toFixed(2) : (t1P ? t1P.toFixed(2) : 'N/A')}</span>
+                </div>
+                <div class="level-mark t2-mark">
+                  <span class="mark-name">TARGET 2</span>
+                  <span class="mark-val">₹${cand.target_2 ? cand.target_2.toFixed(2) : (t2P ? t2P.toFixed(2) : 'N/A')}</span>
+                </div>
+              </div>
+            </div>
+            <div class="target-footer-notes">
+              <span>Holding Window: ${cand.holding_period_days || 30} Days (Exit: ${cand.time_exit_date || 'N/A'})</span>
+              <span>Setup Invalidation: Predefined Structure Stop</span>
+            </div>
+          </div>
+
+          <div class="cand-why-box">
+            <div class="cand-why-title">Why it matched criteria:</div>
+            <ul class="cand-why-list">
+              ${whyItems}
+            </ul>
+          </div>
+
+          <div class="cand-metrics-grid">
+            <div class="metric-cell">
+              <span class="metric-label">P/E Ratio</span>
+              <span class="metric-val">${cand.key_metrics.pe_ratio || "N/A"}</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Debt / Eq</span>
+              <span class="metric-val">${cand.key_metrics.debt_to_equity || "N/A"}</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">RSI (14)</span>
+              <span class="metric-val">${cand.key_metrics.rsi_14 || "N/A"}</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">YoY Profit</span>
+              <span class="metric-val">${cand.key_metrics.profit_growth_yoy || "N/A"}</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Support</span>
+              <span class="metric-val">${cand.key_metrics.support_level || "N/A"}</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Volume</span>
+              <span class="metric-val">${cand.key_metrics.volume_ratio || "N/A"}</span>
+            </div>
+          </div>
+
+          <div class="cand-risks-box">
+            <div class="cand-risks-title">Important Risk Caveats:</div>
+            <ul class="cand-risks-list">
+              ${riskItems}
+            </ul>
+          </div>
+
+          <div class="cand-footer">
+            <span>Status: ${cand.market_status}</span>
+            <span>Updated: ${cand.data_timestamp}</span>
+          </div>
+        `;
+
+        candidateCardsContainer.appendChild(card);
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Keyboard support: Enter to submit, Escape to reset
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !btnAnalyze.disabled && wizardView.style.display !== "none") {
+        runAnalysis();
+      }
+      if (e.key === "Escape" && resultsView.style.display !== "none") {
+        resultsView.style.display = "none";
+        wizardView.style.display = "grid";
+      }
+    });
+
+    // Check pre-fill from backend on load
+    fetch("/api/stocks/profile")
+      .then(r => r.json())
+      .then(p => {
+        if (p && p.active_params) {
+          if (p.active_params.horizon) {
+            horizonCards.forEach(c => {
+              if (c.getAttribute("data-val") === p.active_params.horizon) {
+                horizonCards.forEach(x => x.classList.remove("selected"));
+                c.classList.add("selected");
+                state.horizon = p.active_params.horizon;
+              }
+            });
+          }
+          if (p.active_params.risk) {
+            riskCards.forEach(c => {
+              if (c.getAttribute("data-val") === p.active_params.risk) {
+                riskCards.forEach(x => x.classList.remove("selected"));
+                c.classList.add("selected");
+                state.risk = p.active_params.risk;
+              }
+            });
+          }
+          if (p.active_params.sectors && p.active_params.sectors.length > 0) {
+            sectorChips.forEach(c => {
+              if (p.active_params.sectors.includes(c.getAttribute("data-val"))) {
+                c.classList.add("selected");
+              }
+            });
+          }
+          updateSummary();
+        }
+      })
+      .catch(() => {});
+
+    // History Modal Interaction
+    const btnOpenHistory = document.getElementById("btn-open-history");
+    const btnCloseHistory = document.getElementById("btn-close-history");
+    const historyModal = document.getElementById("history-modal");
+    const historyListContainer = document.getElementById("history-list-container");
+
+    if (btnOpenHistory && historyModal) {
+      btnOpenHistory.addEventListener("click", () => {
+        historyModal.style.display = "flex";
+        historyListContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 30px;">Loading historical recommendations from memory...</div>';
+        fetch("/api/stocks/history")
+          .then(r => r.json())
+          .then(res => {
+            if (!res.recommendations || res.recommendations.length === 0) {
+              historyListContainer.innerHTML = `
+                <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+                  <p>No historical recommendations found in permanent memory.</p>
+                </div>
+              `;
+              return;
+            }
+            historyListContainer.innerHTML = "";
+            res.recommendations.forEach(rec => {
+              const hCard = document.createElement("div");
+              hCard.className = "history-card";
+              hCard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span style="font-size: 15px; font-weight: 700; color: #fff;">${rec.company_name}</span>
+                    <span style="font-size: 12px; color: var(--accent-cyan); font-weight: 600; margin-left: 6px;">(${rec.symbol})</span>
+                    <span class="cand-mcap-badge" style="margin-left: 6px;">${rec.market_cap || 'NSE'}</span>
+                  </div>
+                  <div style="text-align: right;">
+                    <span class="status-badge" style="font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 242, 254, 0.3);">
+                      ${rec.status}
+                    </span>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">${rec.recommendation_date} ${rec.recommendation_time} IST</div>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: #0c1524; padding: 10px; border-radius: 6px; margin-top: 4px;">
+                  <div>
+                    <div style="font-size: 10px; color: var(--text-muted);">REFERENCE PRICE</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #cbd5e1;">₹${rec.reference_price.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 10px; color: var(--accent-emerald);">TARGET 1</div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--accent-emerald);">₹${rec.target_1 ? rec.target_1.toFixed(2) : 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 10px; color: #38bdf8;">TARGET 2</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #38bdf8;">₹${rec.target_2 ? rec.target_2.toFixed(2) : 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div style="font-size: 10px; color: var(--accent-rose);">INVALIDATION</div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--accent-rose);">₹${rec.invalidation_price ? rec.invalidation_price.toFixed(2) : 'N/A'}</div>
+                  </div>
+                </div>
+
+                <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.4; margin-top: 4px;">
+                  <strong>Reason:</strong> ${rec.technical_reason || rec.fundamental_reason || 'Multi-factor alignment'}
+                </div>
+              `;
+              historyListContainer.appendChild(hCard);
+            });
+          })
+          .catch(e => {
+            historyListContainer.innerHTML = `<div style="color: var(--accent-rose); padding: 20px;">Failed to load history: ${e}</div>`;
+          });
+      });
+
+      if (btnCloseHistory) {
+        btnCloseHistory.addEventListener("click", () => {
+          historyModal.style.display = "none";
+        });
+      }
+
+      historyModal.addEventListener("click", (e) => {
+        if (e.target === historyModal) {
+          historyModal.style.display = "none";
+        }
+      });
+    }
+
+    // Initial summary
+    updateSummary();
+  </script>
+</body>
+</html>

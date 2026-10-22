@@ -1,0 +1,8 @@
+{
+  "name": "archive",
+  "version": "1.0.0",
+  "description": "ZIP compression and archive extractor manager.",
+  "author": "Jarvis Team",
+  "permissions": ["filesystem"],
+  "enabled": true
+}

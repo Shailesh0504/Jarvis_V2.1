@@ -1,0 +1,13 @@
+{
+  "name": "vlc",
+  "version": "1.0.0",
+  "description": "VLC Media Player automation and playback control",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:VLCPlugin",
+  "permissions": [
+    "media",
+    "process"
+  ],
+  "dependencies": []
+}

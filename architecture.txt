@@ -1,0 +1,501 @@
+================================================================================
+                         JARVIS V2.1 SYSTEM ARCHITECTURE
+================================================================================
+
+Conversation integration (verified 2026-09-19):
+- Pending operations retain priority. PersonalProfileExtractor resolves explicit
+  profile statements and queries before spelling, general knowledge and small talk;
+  JarvisCore persists/reads canonical facts through the existing MemoryManager.
+- Early non-executable chat and fallback chat share ConversationEngine's bounded
+  dialogue history and question/listening state. Configured chat providers receive
+  that history; the built-in offline fallback remains available.
+- ResponseEngine preserves generated conversation content using per-turn metadata,
+  then applies its existing style and validation gates. Command responses retain
+  their existing execution/verification path. No storage schema or owner changed.
+- Personal project callbacks are greeting-bound and frequency-capped. Scheduled
+  notifications continue through the existing reminder plugin/scheduler.
+
+                               ┌────────────────────────────────────────────────┐
+                               │                   JARVIS GUI                   │
+                               │  📊 Dashboard      💬 Chat        🧩 Plugins   │
+                               │  🧠 Memory         🎓 Learning    ⚡ Workflows │
+                               │  ⏰ Reminders      📝 Activity    ⚙️ Settings  │
+                               └───────────────────────┬────────────────────────┘
+                                                       │
+                                                       ▼
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                   PERCEPTION & EXPERIENCE LAYER                              │
+ │                                                                                              │
+ │  Multilingual STT (En/Hi/Hinglish) │ Universal Wake Word Engine │ Wake Chime Audio Feedback  │
+ │  Streaming TTS (Edge/SAPI5)        │ Screen Awareness / OCR     │ Windows Toast Notifications│
+ └─────────────────────────────────────────────┬────────────────────────────────────────────────┘
+                                               │
+                                               ▼
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                              INTERACTION GATE & SECURITY LAYER                               │
+ │                                                                                              │
+ │  State Machine: IDLE → WAKE_DETECTED → LISTENING → PROCESSING → RESPONDING → IDLE           │
+ │  Voice Interaction Gating (prevents background chatter leaks)                                │
+ │  Biometric Face Authenticator & Permission Elevation                                         │
+ └─────────────────────────────────────────────┬────────────────────────────────────────────────┘
+                                               │
+                                               ▼
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                         CONVERSATIONAL & SEMANTIC INTELLIGENCE                               │
+ │                                                                                              │
+ │  Linguistic Normalization │ Hinglish Phonetic Normalizer │ Screen-Query NLU & Vision Parser   │
+ │  Semantic Orchestrator    │ Intent Classifier            │ Entity & Action Separation        │
+ │  Universal Target Engine  │ App vs Web Resolver          │ Task Continuity & Context Engine  │
+ └─────────────────────────────────────────────┬────────────────────────────────────────────────┘
+                                               │
+                                               ▼
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                      LAYA CORE: TRI-BRIDGE ORCHESTRATION LAYER                               │
+ │                                                                                              │
+ │  1. Direct Execution Decision (Tools vs Chat vs Agent)  2. Route to Chat/LLM                 │
+ │  3. Route to Agent Planner (Task Graph)                 4. Model Selection (Fast/Qwen/Cloud) │
+ │  5. Scoped Context Dynamic Gating                       6. Selective Memory Retrieval        │
+ │  7. Gated Policy Confirmation (Risk-Tiered)             8. Physical Verification Check       │
+ │  9. Closed-Loop Fallback Recovery Strategy                                                   │
+ └───────────────┬─────────────────────────────┬────────────────────────────┬───────────────────┘
+                 │                             │                            │
+                 ▼                             ▼                            ▼
+ ┌──────────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────────┐
+ │     FAST ROUTER (TOOLS)      │ │         CHAT / LLM        │ │         AGENT PLANNER         │
+ │                              │ │                           │ │                               │
+ │ FastPathEngine (<15ms)       │ │ DualBrain / Qwen Local    │ │ AutonomousAgent & TaskEngine  │
+ │ Volume, Time, Weather, App   │ │ Scoped Context & Memory   │ │ Multi-Step Task Graph         │
+ │ Direct Win32 & Desktop Tools │ │ Dialogue & Knowledge/GK   │ │ Closed-Loop Verification      │
+ └───────────────┬──────────────┘ └─────────────┬─────────────┘ └───────────────┬───────────────┘
+                 │                             │                               │
+                 │                             ▼                               │
+                 │                ┌───────────────────────────┐                │
+                 │                │      PLUGIN MANAGER       │                │
+                 │                │ Lazy Loading │ Discovery  │                │
+                 │                │ Capability & Manifest     │                │
+                 │                │ Health Check │ Permissions│                │
+                 │                └─────────────┬─────────────┘                │
+                 │                             │                               │
+                 │   ┌─────────────────────────┼───────────────────────────┐   │
+                 │   ▼                         ▼                           ▼   │
+                 │ ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐│
+                 │ │     SYSTEM & OS      │  │     WEB & MEDIA      │  │  PRODUCTIVITY & DOCS ││
+                 │ │ Windows │ Apps       │  │ YouTube V2 │ VLC     │  │ Excel │ PDF          ││
+                 │ │ System  │ Process    │  │ Browser    │ Games   │  │ Documents │ Office   ││
+                 │ │ Power   │ Clipboard  │  │ Web Search │ Sounds  │  │ Archive   │ Notes    ││
+                 │ └──────────────────────┘  └──────────────────────┘  └──────────────────────┘│
+                 │                                                                             │
+                 │ ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐│
+                 │ │    COMMS & SOCIAL    │  │   UTILITIES & TIME   │  │   HARDWARE & TOOLS   ││
+                 │ │ WhatsApp │ Email     │  │ Reminders  │ Calendar│  │ Camera    │ Printer  ││
+                 │ │ Contacts │ Chat      │  │ Tasks      │ Clock   │  │ Screen    │ Math     ││
+                 │ │ Notifs   │ Sync      │  │ Automation │ Alarms  │  │ OCR       │ Network  ││
+                 │ └──────────────────────┘  └──────────────────────┘  └──────────────────────┘│
+                 │                                                                             │
+                 └─────────────────────────────┬───────────────────────────────────────────────┘
+                                               │
+                                               ▼
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                   PUB / SUB EVENT BUS                                        │
+ │                                                                                              │
+ │  User Audio │ Normalized Input │ Intent Detected │ Command Executing │ Result Ready          │
+ │  Activity Observed │ Habit Detected │ Memory Updated │ Suggestion Fired │ UI Update Stream   │
+ └───────────────────────────────┬───────────────────────────────┬──────────────────────────────┘
+                                 │                               │
+                                 ▼                               ▼
+ ┌──────────────────────────────────────────────┐ ┌─────────────────────────────────────────────┐
+ │       PROACTIVE INTELLIGENCE ENGINE          │ │        MULTI-TIER COGNITIVE MEMORY          │
+ │                                              │ │                                             │
+ │  ActivityObserver: Window/URL/Idle Polling   │ │  Working Memory: Active conversation state  │
+ │  ActivityMemory: SQLite Timeline & Events    │ │  Short-Term Memory: Recent entities & apps  │
+ │  PatternEngine: Habit Mining & Frequency     │ │  Episodic Memory: Past dialogues & sessions │
+ │  PreferenceLearner: App & Workflow Affinity  │ │  Semantic Memory: Persistent knowledge/facts│
+ │  SuggestionManager: Low-disruption Prompts   │ │  Procedural Memory: Multi-step routines    │
+ │  DistractionGuard: Focus mode protection     │ │  Context Engine: Active target continuity   │
+ └───────────────────────────────┬──────────────┘ └──────────────────────────────┬──────────────┘
+                                 │                                               │
+                                 └───────────────────────┬───────────────────────┘
+                                                         │
+                                                         ▼
+                                          ┌─────────────────────────────┐
+                                          │      CONTINUOUS LEARNING    │
+                                          │  Habit Sequence Detection   │
+                                          │  Correction & Feedback Loop │
+                                          │  Phonetic / STT Resolver    │
+                                          │  Custom Vocabulary Teaching │
+                                          └──────────────┬──────────────┘
+                                                         │
+                                                         ▼
+                                          ┌─────────────────────────────┐
+                                          │   MULTI-DATABASE STORAGE    │
+                                          │                             │
+                                          │ memory.db (Knowledge/Facts) │
+                                          │ conversations.db (Episodic) │
+                                          │ proactive_activity.db       │
+                                          │ habits_preferences.db       │
+                                          │ workflows.db (Procedural)   │
+                                          │ reminders.db (Scheduled)    │
+                                          │ structured_logs.jsonl       │
+                                          └─────────────────────────────┘
+
+================================================================================
+                    DETAILED ARCHITECTURAL SUBSYSTEMS
+================================================================================
+
+1. PRESENTATION LAYER (GUI)
+--------------------------------------------------------------------------------
+The Jarvis UI is implemented in PyQt6 with modern dark-mode styling, responsive
+layouts, and dynamic telemetry cards. It consists of 9 specialized views:
+
+- DashboardView: Real-time telemetry (CPU, RAM, Uptime, Active Plugins, Active
+  Target Context, Proactive AI Status, Cognitive Facts Count).
+- ChatView: Conversational interface supporting text & voice interaction, multi-turn
+  dialogues, command history navigation (Up/Down arrows), and voice utterance capture.
+- PluginsView: Dynamic catalog of 35+ domain plugins with instant search filtering,
+  toggle controls, and interactive capability inspector (actions, keywords, intents).
+- MemoryView: Three-tier memory inspector (Facts & Knowledge, User Preferences,
+  Episodic Conversations) with modal dialog for teaching persistent facts.
+- LearningView: Habit and routine discovery panel displaying auto-mined patterns
+  from user behavior, pending workflow approvals, and a "Teach Word" vocabulary dialog.
+- WorkflowsView: Procedural automation manager allowing execution, editing, and
+  creation of multi-step routines with pre-configured starter templates.
+- RemindersView: Interactive reminder manager synced with the ReminderPlugin for
+  natural language scheduling, countdown timers, and recurring alerts.
+- ActivityLogView: Dual-mode system observer featuring a color-coded runtime debug
+  console and an interactive Desktop Activity Timeline.
+- SettingsView: Comprehensive control panel covering Speech/Audio, Biometric Face
+  Authentication, Proactive Intelligence & Privacy thresholds, and system themes.
+
+2. PERCEPTION & EXPERIENCE LAYER
+--------------------------------------------------------------------------------
+- Speech-to-Text (STT): Robust multilingual recognition supporting English, Hindi,
+  and Hinglish speech patterns. Incorporates phonetic normalization and STT error
+  tolerance for real-world user accents and noisy environments.
+- Wake Word Engine: Multi-engine architecture supporting Porcupine, OpenWakeWord,
+  and fallback keyword matching with sub-50ms latency.
+- Audio Feedback & Wake Chime: Low-latency audio cues played immediately upon wake
+  word detection via a dedicated Pygame sound thread.
+- Text-to-Speech (TTS): Hybrid local/cloud speech synthesis engine supporting
+  streaming Edge-TTS with fallback to pyttsx3/Windows SAPI5 for offline operation.
+- Screen Awareness & OCR: Integrates desktop screen inspection, active window handle
+  detection, browser URL extraction, and OCR for visual context awareness.
+
+3. INTERACTION GATE & SECURITY
+--------------------------------------------------------------------------------
+- Interaction Gate State Machine:
+  IDLE -> WAKE_DETECTED -> LISTENING -> PROCESSING -> RESPONDING -> IDLE.
+  Prevents ambient room speech and background noise from triggering unintended commands.
+- Biometric Face Authenticator: Local OpenCV + deep learning facial verification
+  engine used to unlock sensitive plugins (Email, WhatsApp, Financial, System settings)
+  and elevate user permissions.
+
+4. CONVERSATIONAL INTELLIGENCE & 8-STAGE UNDERSTANDING PIPELINE
+--------------------------------------------------------------------------------
+The Jarvis NLU pipeline processes user utterances through an 8-stage pipeline
+ensuring STT error resilience, safety for destructive actions, and elimination
+of fake conversational understanding:
+
+1. Text Normalization: Strips quotes, excess whitespace, punctuation, and colloquial
+   fillers ("bhai", "please", "zara") using TextNormalizer and HinglishNormalizer.
+2. Local Vocabulary & Lexicon Intelligence: LexiconEngine (core/semantic/lexicon.py) provides
+   deterministic O(1) multi-word phrase mapping, abbreviation expansion (pc, calc, bt, wa, ppt, xls),
+   and synonym understanding across English, Hindi, and Hinglish without rigid keyword matching.
+   Maps multi-word phrases ("PC dobara start karo", "reboot my computer", "system ko restart karo")
+   reliably to SYSTEM_RESTART, and open verbs ("open", "launch", "start", "chalao", "khol do")
+   reliably to OPEN_APPLICATION without deciding final intent without context.
+3. Early-Stage Intelligent Spell Correction & Clarification: Resolves phonetic and typing mistakes
+   (e.g., "retstart" -> "restart", "microsft" -> "microsoft", "excell"/"exel" -> "excel", "chrme" -> "chrome",
+   "blutooth" -> "bluetooth") via Levenshtein distance, phonetic neighborhood relaxation, and registered app
+   terms in SpellingResolver before intent detection and fast-path execution.
+   - High-confidence silent correction produces natural spoken acknowledgements ("Ji, Microsoft Excel khol raha hoon.").
+   - Ambiguous / moderate confidence prompts personalized questions ("Shailesh, aap Excel keh rahe hain ya Word?").
+   - Low confidence / unknown words are never blindly autocorrected.
+4. Context & Reference Resolution: Resolves active workflow, foreground application,
+   and pronoun references ("isme", "usko", "that file") via ActiveTargetContext.
+5. Intent Detection & Semantic Parsing: SemanticPipelineOrchestrator routes across
+   modular domain parsers (System, Windows, Media, Productivity, Web).
+6. Confidence Scoring: Computes calibrated confidence score (High >= 0.80, Medium
+   0.60-0.79, Low < 0.60) without exposing internal ML tokens to the user.
+7. Action Decision Pipeline:
+   - High Confidence Safe Commands: Direct execution (e.g., launch Chrome).
+   - High Confidence Destructive Actions: Mandatory confirmation state machine
+     (ConfirmationManager) trigger (e.g., system restart, shutdown, delete).
+   - Medium / Ambiguous Confidence: Natural clarification prompt (e.g., "Aap system
+     restart karne ki baat kar rahe ho?").
+   - Low Confidence / Unknown Commands: Honest natural clarification request
+     (e.g., "Mujhe ye command samajh nahi aayi, Boss"), never emitting fake
+     "Main samajh gaya!" responses.
+
+4b. KNOWLEDGE-BASED GENERAL KNOWLEDGE (GK) ENGINE & REASONING LAYER
+--------------------------------------------------------------------------------
+- Knowledge-Based Architecture: Organizes factual knowledge into structured entities,
+  properties, and semantic relations across 16 domains (countries, capitals, states,
+  currencies, continents, planets, elements, history, famous people, acronyms,
+  science basics, geography, Indian GK, computer technology facts) rather than thousands
+  of natural-language Q&A pairs.
+- Natural Multilingual Normalization: Diverse phrasings ("India ki capital kya hai?",
+  "Bharat ki rajdhani kya hai?", "What is the capital of India?") resolve to single
+  underlying canonical entity and attribute triples (India -> capital: New Delhi).
+- Conceptual Reasoning Layer: Evaluates physical and scientific questions ("Why does the
+  sky appear blue?", "Photosynthesis kya hota hai?", "Explain gravity simply") via bilingual
+  structured conceptual models without requiring exact question matches.
+- Time-Sensitive Routing: Gated routing protecting against stale facts for dynamic queries
+  (current leadership, live weather, real-time stock prices, latest news).
+- Strict Anti-Hallucination: Emits transparent refusal when confidence is LOW (< 0.60)
+  rather than fabricating unverified claims.
+- Command & Capability Isolation: Strictly separated from action execution; capability
+  inquiries ("kya tum system lock kar sakte ho?") are gated upstream and never trigger GK.
+
+4c. IT & INFRASTRUCTURE TECHNICAL KNOWLEDGE ENGINE (core/knowledge/it/)
+--------------------------------------------------------------------------------
+- Dedicated Enterprise IT Subsystem: Authoritative systems administrator guidance across
+  Windows Desktop (10/11), Windows Server 2019, Microsoft Azure, Networking, and Enterprise
+  Infrastructure.
+- Reusable Concept Model: Concepts (AD DS, DNS, DHCP, GPO, IIS, Hyper-V, Azure VM, VNet,
+  NSG, BitLocker, VLANs, SAN/NAS, RAID) store definitions, architecture, how-to procedures,
+  best practices, and related commands rather than hardcoded Q&A rows.
+- 6-Phase Structured Troubleshooting:
+  Problem Identification -> Likely Causes -> Safe Checks -> Commands/Tools -> Possible Fixes -> Verification Steps.
+- Safe Technical Command Catalog: Registry of commands (ipconfig, ping, tracert, nslookup,
+  netstat, sfc, DISM, gpupdate, whoami, Test-NetConnection, Get-ADUser, az vm). Commands are
+  explained safely; zero command execution on knowledge inquiries.
+- Multi-Turn Context Tracking: Maintains active technical domain and procedure steps across
+  dialogue turns, resolving continuation questions ("ab next kya karu?") seamlessly.
+- Strict Anti-Hallucination & MS Learn Alignment: Authoritative documentation citations,
+  qualified responses on medium confidence, and honest refusal on low confidence.
+
+5. PROACTIVE INTELLIGENCE & OBSERVER ENGINE
+--------------------------------------------------------------------------------
+- ActivityObserver: Low-overhead background thread polling foreground window titles,
+  process IDs, browser active tabs, and user idle duration.
+- ActivityMemory: High-performance SQLite datastore logging timestamped desktop
+  events with automated retention and pruning policies.
+- PatternEngine: Frequency and sequence miner detecting recurring user habits
+  (e.g., "Always launches VS Code then Spotify between 9 AM and 10 AM").
+- PreferenceLearner: Mines implicit user preferences (default browser, media player,
+  work hours) without requiring explicit configuration.
+- SuggestionManager: Coordinates non-intrusive proactive suggestions, respecting
+  confidence thresholds and user focus/distraction guard settings.
+
+6. COMMAND ROUTING & PLUGIN ECOSYSTEM
+--------------------------------------------------------------------------------
+- Plugin Manager: Lazy-loads 35+ plugins on demand to ensure sub-second startup time.
+  Enforces manifest validation, permission checks, and execution isolation.
+- Domain Plugins:
+  * System & OS: Windows window management, App launcher, Volume, Power, Clipboard.
+  * Web & Media: YouTube V2, VLC media player, Browser automation, Games, Web search.
+  * Website Resolution: WebsiteKnowledgeStore persists canonical names, validated URLs,
+    conservative aliases, confidence, source, timestamps, and usage counts in the
+    authoritative SQLite database. The resolver uses learned mappings before built-ins;
+    an unknown phrase creates a session-scoped URL clarification instead of an inferred domain.
+    Once resolved, TargetRequest carries resolved_url separately from the user phrase so
+    the browser receives only the validated URL. Browser launch acknowledgement is execution
+    success; unavailable page/window observation is recorded as verification_unknown.
+  * Productivity: Excel automation, PDF parser, Word/Documents, Office routines, Archive.
+  * Comms & Social: WhatsApp Desktop automation, Email manager, Contact book.
+  * Utilities: Natural language reminders, Calendar schedule, Task runner, Alarms.
+  * Hardware & Sensors: Screen capture/inspection, OCR, Camera, Printer, Bluetooth, Network.
+
+6b. DECOUPLED EXECUTION SUBSYSTEMS & ORCHESTRATION ARCHITECTURE (core/execution/)
+--------------------------------------------------------------------------------
+- Application Orchestrator & Composition Root (JarvisCore in core/app.py):
+  Serves strictly as the application orchestrator and dependency composition root. Coordinates
+  subsystem lifecycles, turn states, domain event emissions, and cross-cutting error boundaries
+  without housing monolithic procedural execution logic.
+- Ultra-Low Latency Fast-Path Engine (FastPathEngine in core/execution/fast_path.py):
+  Encapsulates deterministic high-confidence commands (<50ms response start) including time/date
+  queries, master volume adjustments, active tab closure (Ctrl+W), common application launches
+  with adaptive TTS pre-acknowledgement, conversational jokes, and creative graphics (Bappa turtle).
+
+- Semantic Action Executor (SemanticActionExecutor in core/execution/semantic_executor.py):
+  Encapsulates parsed SemanticAction dispatch across universal window operations (minimize, maximize,
+  restore, close), Explorer folder management, app launching, Bluetooth toggles, secure password
+  generation workflows, file opening, screen inspection, custom alias learning, browser/YouTube
+  operations, target execution, activity memory queries, biometric face auth, and plugin routing.
+- Universal Target State Inspection (UniversalTargetDiscoveryEngine in core/target_engine.py):
+  Encapsulates platform-specific OS window and process inspection (check_target_status) ensuring
+  clean abstraction away from core application orchestration.
+
+7. COGNITIVE MEMORY SYSTEM
+--------------------------------------------------------------------------------
+- Working Memory: In-memory cache holding active targets, current entities, and workflow slots.
+- Short-Term Memory: Multi-turn context spanning recent conversation turns.
+- Episodic Memory: Persistent archive of past user-assistant interactions and session topics.
+- Semantic Memory: Knowledge graph and key-value store of user facts and global knowledge.
+- Procedural Memory: Structured workflow definitions consisting of sequenced plugin actions.
+- Activity Memory: Historical log of observed desktop events and application usage patterns.
+
+8. CONTINUOUS LEARNING ENGINE
+--------------------------------------------------------------------------------
+- Habit Detection: Automatically aggregates frequent action sequences into candidates
+  for one-click procedural workflow synthesis.
+- User Correction Layer: Learns from user corrections (e.g., "Nahi, Chrome nahi Brave kholo")
+  to adjust alias mappings and priority rankings.
+- Phonetic & Vocabulary Learning: Allows users to teach new proper nouns, custom app
+  names, and phonetic variations directly into the dictionary.
+
+9. PUB/SUB EVENT BUS & ASYNC ARCHITECTURE
+--------------------------------------------------------------------------------
+- Core EventBus: Thread-safe, decoupled publish-subscribe messaging backbone enabling
+  loose coupling between perception, intelligence, GUI, and background worker threads.
+- Canonical Event Topics (EventTopics):
+  * user.input.received, voice.wakeword.detected, intent.classified, command.detected
+  * action.planned, policy.evaluated, execution.started, execution.completed
+  * task.started, task.completed, memory.created, learning.detected
+  * proactive.suggestion.proposed, activity.observed, plugin.loaded, plugin.error
+  * core.initialized, system.shutdown, response.completed, system.state.changed
+- Concurrency & Error Boundaries:
+  * Isolated subscriber error handling: subscriber exceptions never crash the bus.
+  * publish_async() & emit_async() background worker threads for non-blocking notifications.
+  * has_subscribers() wildcard pattern evaluation.
+
+10. PERSISTENCE & STORAGE TOPOLOGY
+--------------------------------------------------------------------------------
+- Authoritative Relational Store: data/jarvis.db
+  * Managed by DatabaseManager with Write-Ahead Logging (WAL) and busy timeout.
+  * Relational Schema:
+    - users, preferences: User identity, roles, and configuration.
+    - memories, conversations: Long-term semantic facts and multi-turn episodic history.
+    - entities, corrections, learned_vocabulary: Domain terms, phonetic corrections, aliases.
+    - website_knowledge: Persistent canonical website records, conservative aliases,
+      validated HTTP(S) URLs, provenance, confidence, timestamps, and usage counts.
+    - learned_patterns: Frequency-based habits mined by PatternLearningEngine.
+    - workflows, task_workflows, task_checkpoints: Procedural routines & task continuity states.
+    - task_experience, experience_memories: Multi-tier cognitive learning system.
+    - communication_patterns, communication_preferences: LCE personalization store.
+    - proactive_activity_events: Structured historical timeline logged by ActivityObserver.
+- High-Concurrency Hardening:
+  * PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA busy_timeout = 5000;
+  * 15-second connection acquisition timeout preventing SQLite database lock errors.
+- Structured Logs: Rotating daily structured JSONL log files for complete auditability.
+
+================================================================================
+                    COMMAND & VOICE EXECUTION LIFECYCLE
+================================================================================
+
+1. VOICE INTERACTION & ULTRA-LOW LATENCY PIPELINE (ACTUAL RUNTIME):
+   User Voice / Text Utterance
+         │
+         ▼
+   VoiceListener (Multilingual STT En/Hi/Hinglish) / GUI Input (<30ms)
+         │
+         ▼
+   Interaction Gate: Biometric Face Authenticator & State Machine
+         │
+         ▼
+   Conversation & Context Manager (Normalization, Turn State & Entity Continuity)
+         │
+         ▼
+   Fast Path Intercept (<10ms for volume, time, battery, weather bypass)
+         │
+         ▼
+   Dialog Manager & Workflow Lock (Active multi-turn slot filling & ConfirmationManager)
+         │
+         ▼
+   Speech-Act Gating & Semantic NLU (HinglishNLUParser, anti-execution gating)
+         ├─ Explanation / Knowledge: KnowledgeEngine / ITKnowledgeEngine (Zero-Command Exec)
+         ├─ Multi-Step Complex Goal: AutonomousAgent (Goal Decomposition & AgentTaskMemory)
+         ├─ Secondary / Skill Fallback: CommandRouter -> PluginManager (Domain Plugins)
+         └─ Primary Execution Workhorse (~85%+ Real Turns):
+               │
+               ▼
+         SemanticActionExecutor
+               │
+               ├─ UniversalTargetDiscoveryEngine (Desktop App vs Web URL vs File Resolution)
+               ├─ UniversalWindowResolver (Multi-Signal Scorer: HWND, PID, Z-Order, State)
+               ├─ ExecutionStrategyEngine (Win32 API / OS Process Spawner)
+               └─ UniversalVerificationLayer (Post-Action Process/Window/State Verification)
+         │
+         ▼
+   Conversational Response Policy (Human-like natural formatting)
+         │
+         ▼
+   PipelineLatencyTracker (Per-stage SLA metrics) & EventBus Telemetry
+         │
+         ▼
+   Streaming Audio TTS (Zero-Persistence BytesIO) & GUI HUD Waveform Update
+
+2. PROACTIVE OBSERVER FLOW:
+   Desktop Activity (App Focus / URL / Idle)
+         │
+         ▼
+   ActivityObserver (Windows Polling Thread)
+         │
+         ▼
+   ActivityMemory (SQLite Event Logging)
+         │
+         ▼
+   PatternEngine (Habit & Frequency Mining)
+         │
+         ▼
+   SuggestionManager (Confidence & Distraction Gating)
+         │
+         ▼
+   Proactive Prompt Delivery (GUI Banner / Voice Suggestion)
+
+3. ZERO-DOWNTIME LIVE UPDATE LIFECYCLE (IN-PROCESS):
+   Source File Change (Editor / Tool / User)
+         │
+         ▼
+   LiveUpdateManager (In-Process Polling & Coalescing Debounce)
+         │
+         ▼
+   ReloadPolicy (HOT_RELOAD_SAFE vs WORKER_RESTART_REQUIRED vs FULL_RESTART_REQUIRED)
+         │
+         ├─ HOT_RELOAD_SAFE: In-Process Module / Plugin Reload (sys.modules, EventBus)
+         ├─ WORKER_RESTART_REQUIRED: Quiesce Worker -> Reload Module -> Restart Replacement Worker
+         └─ FULL_RESTART_REQUIRED: Log Warning & Prompt via EventBus (GUI is NEVER forcibly killed)
+         │
+         ▼
+   GUI Host Remains Continuously Alive & Status Badge Notified
+4. CLEAN PIPELINE & APPLICATION COMPOSITION ARCHITECTURE:
+   JarvisCore (core/app.py) is a thin application composition/orchestration layer (<800 lines).
+   Deconstructs heavy responsibilities into dedicated single-responsibility subsystems:
+         │
+         ├─ core.bootstrap.ServiceInitializer (Infrastructure setup & subsystem wiring)
+         ├─ core.pipeline.InputPipeline (InteractionStage -> PreprocessingStage -> LayaStage)
+         ├─ core.execution.ActionService (ActionPlan execution & Task Continuity workflow)
+         ├─ core.response.ResponseFinalizer (Guarantees, spell acks & contextual suggestions)
+         ├─ core.feedback.TurnFeedbackService (Episodic logging, mistake classification & learning)
+         └─ core.handlers.* (CommandHandler, ConversationHandler, AgentHandler, LearningHandler, PendingStateHandler)
+================================================================================
+
+5. DYNAMIC ISLAND & FLOATING COMPANION ANCHOR ARCHITECTURE (gui/island/ & gui/app.py):
+   Permanent floating desktop companion inspired by fluid Dynamic Island aesthetics:
+         │
+         ├─ Permanent Floating Anchor: 64x64 squircle companion icon (128x128@2x.png) permanently
+         │  visible across all operational states (IDLE, LISTENING, THINKING, SPEAKING, WORKING,
+         │  SUCCESS, ERROR, CHAT). Default position is TOP-CENTER.
+         ├─ Anchor Position Manager (gui/island/position_manager.py): DPI-aware normalized coordinate
+         │  persistence (data/anchor_position.json). Offscreen clamping ensures at least >=28px remains
+         │  visible. Reset JARVIS Position restores default top-center geometry.
+         ├─ Click vs Drag Detection: Mouse movement > 8px engages DRAG_ANCHOR mode for freeform
+         │  desktop dragging. Movement <= 8px triggers click to expand into Dynamic Island.
+         ├─ Intelligent Anchored Expansion: Expansion direction dynamically computes based on anchor
+         │  proximity (downward when near top, upward when near bottom, horizontally clamped within screen).
+         ├─ Collapse Invariant: Dynamic Island Close (×) button collapses expanded island back to the
+         │  floating anchor. × NEVER exits process and NEVER hides the anchor.
+         └─ Persistent Runtime Lifeline: Backend, speech listener, audio streaming, TTS, Chat, and
+            system tasks remain running and uninterrupted across all UI states.
+================================================================================
+
+6. COUCOU-STYLE SEMANTIC SOUND + MOCHI VISUAL SYSTEM (gui/island/semantic_events.py, gui/sound_effects.py, gui/island/character.py):
+   Orchestrates coordinated SOUND + VISUAL STATE + ANIMATION + UI RESPONSE:
+         │
+         ├─ Master Sound -> Visual Mapping: 28 semantic sounds (peek, open, close, greet, work, think,
+         │  search, approval, approve, finish, error, question, rate, sleep, dizzy, slap, annoyed,
+         │  hover, love, wink, proud, yawn, send, tick, blip, gulp, pop, attach).
+         ├─ Central Semantic Event Layer (gui/island/semantic_events.py): jarvis_visual_event(...) API
+         │  enforces event deduplication (event_id memory) and strict per-event cooldowns.
+         ├─ Zero Sound-to-Render-Loop Coupling: Audio cues NEVER fire from 60fps frame loops,
+         │  mouse movements, partial STT streaming, or RMS/VAD thresholds.
+         ├─ Upload Decile Gating: tick.wav strictly fires only on crossing deciles 10%, 20%, ..., 90%.
+         │  Never fires at 0%, 100% triggers approve.wav, and intermediate updates stay silent.
+         ├─ Dynamic Procedural Mochi Character (gui/island/character.py): Super-ellipse squircle body,
+         │  22 expressive states, dynamic squash-and-stretch slap physics, multi-click dizzy rotation,
+         │  search scan eyes, chewing swallow animation, and status badges.
+         ├─ Pinned UI Exception: Approval requests set orange character + '!' badge and pin the island,
+         │  blocking auto-close until user confirms or denies.
+         └─ Windows Audio Safety: Non-blocking, output-only playback that never interrupts microphone
+            capture, STT pipelines, or Bluetooth SCO routing.
+================================================================================

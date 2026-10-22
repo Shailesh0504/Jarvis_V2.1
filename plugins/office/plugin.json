@@ -1,0 +1,8 @@
+{
+  "name": "office",
+  "version": "1.0.0",
+  "description": "Microsoft Office suite automation (Word, PowerPoint, documents).",
+  "author": "Jarvis Team",
+  "permissions": ["office", "filesystem", "process"],
+  "enabled": true
+}

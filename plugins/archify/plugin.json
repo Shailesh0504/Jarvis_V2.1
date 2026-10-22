@@ -1,0 +1,44 @@
+{
+  "name": "archify",
+  "version": "1.0.0",
+  "description": "Interactive Archify architecture visualization viewer for Jarvis V2.1.",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "filesystem",
+    "process"
+  ],
+  "actions": [
+    {
+      "name": "show_architecture",
+      "description": "Opens and displays the complete interactive Archify architecture map of Jarvis V2.1",
+      "keywords": [
+        "archify dikhao",
+        "archify open karo",
+        "show archify",
+        "open archify",
+        "complete archify dikhao",
+        "jarvis architecture dikhao",
+        "jarvis ka architecture dikhao",
+        "show jarvis architecture",
+        "archify display karo",
+        "archify viewer kholo"
+      ],
+      "parameters": [
+        {
+          "name": "target",
+          "type": "string",
+          "description": "Optional view id or specific section",
+          "required": false,
+          "default": null
+        }
+      ],
+      "required_permission": "READ",
+      "required_capability": "filesystem"
+    }
+  ],
+  "supported_intents": [
+    "SHOW_ARCHIFY",
+    "SHOW_ARCHITECTURE"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "clipboard",
+  "version": "1.0.0",
+  "description": "Windows system clipboard reader, copier, and manager.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control"],
+  "enabled": true
+}

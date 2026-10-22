@@ -1,0 +1,8 @@
+{
+  "name": "automation",
+  "version": "1.0.0",
+  "description": "Macro workflow execution, hotkeys, and automated keyboard/mouse sequencing.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control", "process"],
+  "enabled": true
+}

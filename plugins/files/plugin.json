@@ -1,0 +1,12 @@
+{
+  "name": "files",
+  "version": "1.0.0",
+  "description": "File system explorer, directory browser and file metadata tool",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:FilesPlugin",
+  "permissions": [
+    "filesystem"
+  ],
+  "dependencies": []
+}

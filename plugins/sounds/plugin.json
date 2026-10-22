@@ -1,0 +1,8 @@
+{
+  "name": "sounds",
+  "version": "1.0.0",
+  "description": "Sound and sound effects asset controller.",
+  "author": "Jarvis Team",
+  "permissions": ["audio"],
+  "enabled": true
+}

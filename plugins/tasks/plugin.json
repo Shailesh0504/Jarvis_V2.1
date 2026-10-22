@@ -1,0 +1,8 @@
+{
+  "name": "tasks",
+  "version": "1.0.0",
+  "description": "Task management, todo list, and productivity tracking.",
+  "author": "Jarvis Team",
+  "permissions": ["office", "filesystem"],
+  "enabled": true
+}

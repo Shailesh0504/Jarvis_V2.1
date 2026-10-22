@@ -1,0 +1,14 @@
+{
+  "name": "windows",
+  "version": "1.0.0",
+  "description": "Windows OS management, application launcher and process monitoring",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:WindowsPlugin",
+  "permissions": [
+    "os",
+    "process",
+    "system"
+  ],
+  "dependencies": []
+}

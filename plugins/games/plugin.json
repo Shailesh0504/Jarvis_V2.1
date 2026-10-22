@@ -1,0 +1,8 @@
+{
+  "name": "games",
+  "version": "1.0.0",
+  "description": "Game launcher and interactive gaming controllers for Chess and other system games.",
+  "author": "Jarvis Team",
+  "permissions": ["filesystem", "process"],
+  "enabled": true
+}

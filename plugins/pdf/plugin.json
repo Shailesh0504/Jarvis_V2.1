@@ -1,0 +1,11 @@
+{
+  "name": "pdf",
+  "version": "1.0.0",
+  "description": "PDF Document Reader and Extractor",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "filesystem",
+    "office"
+  ]
+}

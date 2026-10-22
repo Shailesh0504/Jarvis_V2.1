@@ -1,0 +1,8 @@
+{
+  "name": "email",
+  "version": "1.0.0",
+  "description": "Email management, composition, and sending assistant.",
+  "author": "Jarvis Team",
+  "permissions": ["network", "office"],
+  "enabled": true
+}

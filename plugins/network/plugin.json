@@ -1,0 +1,8 @@
+{
+  "name": "network",
+  "version": "1.0.0",
+  "description": "Network connectivity, IP address, ping, and internet diagnostic tools.",
+  "author": "Jarvis Team",
+  "permissions": ["network", "system_control"],
+  "enabled": true
+}

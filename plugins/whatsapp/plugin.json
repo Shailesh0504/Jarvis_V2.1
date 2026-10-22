@@ -1,0 +1,8 @@
+{
+  "name": "whatsapp",
+  "version": "2.0.0",
+  "description": "Zero-API dedicated local WhatsApp Desktop and Web communication plugin with contact resolution and message drafting.",
+  "author": "Jarvis Team",
+  "permissions": ["network", "process"],
+  "enabled": true
+}

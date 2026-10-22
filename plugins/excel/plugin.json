@@ -1,0 +1,13 @@
+{
+  "name": "excel",
+  "version": "1.0.0",
+  "description": "Microsoft Excel & spreadsheet automation plugin",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:ExcelPlugin",
+  "permissions": [
+    "filesystem",
+    "office"
+  ],
+  "dependencies": []
+}

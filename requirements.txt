@@ -1,0 +1,52 @@
+# ==============================================================================
+# JARVIS V2 - Autonomous AI Assistant Requirements
+# ==============================================================================
+
+# Core System & Data Validation
+pydantic>=2.5.0
+pyyaml>=6.0.1
+psutil>=5.9.0
+rapidfuzz>=3.0.0
+
+# Desktop GUI (Modern Cyber-Dark Interface)
+PySide6>=6.5.0
+
+# Voice, Audio & Neural Speech (TTS / STT / Wake-Word / Audio Controller)
+pygame>=2.5.0
+edge-tts>=6.1.9
+pyttsx3>=2.90
+pywin32>=306
+SpeechRecognition>=3.10.0
+sounddevice>=0.4.6
+numpy>=1.24.0
+opencv-python>=4.8.0
+pyaudio>=0.2.14
+pycaw>=20240210
+comtypes>=1.4.0
+
+# Automation, System & Networking
+pyautogui>=0.9.54
+pyperclip>=1.8.2
+requests>=2.31.0
+
+# Office, Documents & Computer Vision
+Pillow>=10.0.0
+python-docx>=1.1.0
+python-pptx>=1.0.0
+openpyxl>=3.1.0
+pypdf>=5.0.0
+pytesseract>=0.3.10
+winocr>=0.0.15
+
+# Optional Plugins & Local Model Extensions (Uncomment as needed)
+# sympy>=1.12.0          # Advanced Algebraic Equations & Calculus Solver
+# geopy>=2.4.0           # Global Geocoding & Distance Computations
+# ollama>=0.1.6          # Local LLM Integration (Ollama)
+# faster-whisper>=1.0.0  # Offline Multilingual Neural Speech-to-Text
+# pvporcupine>=3.0.0     # Offline Picovoice Porcupine Wake Word Engine
+# laya>=0.3.20           # Laya System-1 Decision Engine (Settings -> Download installs on demand)
+# huggingface_hub>=0.23  # Resumable Laya checkpoint download (fallback: laya Router auto-pull)
+
+# Testing & Quality Assurance
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

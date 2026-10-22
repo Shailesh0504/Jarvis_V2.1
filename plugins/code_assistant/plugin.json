@@ -1,0 +1,11 @@
+{
+  "name": "code_assistant",
+  "version": "1.0.0",
+  "description": "Developer Code Assistant Plugin for Jarvis codebase analysis, error finding, architecture validation, pytest execution, and safe patching.",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "filesystem",
+    "process"
+  ]
+}

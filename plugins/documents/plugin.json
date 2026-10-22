@@ -1,0 +1,8 @@
+{
+  "name": "documents",
+  "version": "1.0.0",
+  "description": "Document and notes reader, writer, and text content extractor.",
+  "author": "Jarvis Team",
+  "permissions": ["filesystem"],
+  "enabled": true
+}

@@ -1,0 +1,8 @@
+{
+  "name": "ocr",
+  "version": "1.0.0",
+  "description": "Optical Character Recognition (OCR) text extractor from images and screen.",
+  "author": "Jarvis Team",
+  "permissions": ["filesystem", "system_control"],
+  "enabled": true
+}

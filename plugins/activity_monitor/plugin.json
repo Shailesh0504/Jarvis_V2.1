@@ -1,0 +1,8 @@
+{
+  "name": "activity_monitor",
+  "version": "1.0.0",
+  "description": "Silent background screen awareness and structured activity memory observer.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control"],
+  "entrypoint": "plugin.py:ActivityMonitorPlugin"
+}

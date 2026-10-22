@@ -1,0 +1,13 @@
+{
+  "name": "bluetooth",
+  "version": "1.0.0",
+  "description": "Bluetooth device connectivity and adapter management",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:BluetoothPlugin",
+  "permissions": [
+    "hardware",
+    "bluetooth"
+  ],
+  "dependencies": []
+}

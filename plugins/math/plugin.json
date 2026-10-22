@@ -1,0 +1,8 @@
+{
+  "name": "math",
+  "version": "2.0.0",
+  "description": "Deterministic local offline mathematical computation and algebra solving engine with natural Hindi/Hinglish speech normalizer.",
+  "author": "Jarvis Team",
+  "permissions": ["safe_compute"],
+  "enabled": true
+}

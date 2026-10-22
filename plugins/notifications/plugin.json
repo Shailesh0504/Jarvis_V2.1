@@ -1,0 +1,8 @@
+{
+  "name": "notifications",
+  "version": "1.0.0",
+  "description": "Windows desktop notifications and alerts controller.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control"],
+  "enabled": true
+}

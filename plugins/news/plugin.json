@@ -1,0 +1,7 @@
+{
+  "name": "news",
+  "version": "1.0.0",
+  "description": "Live Internet News Headlines Plugin for Jarvis V2.1",
+  "author": "Jarvis Team",
+  "entrypoint": "plugin.py:NewsPlugin"
+}

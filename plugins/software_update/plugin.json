@@ -1,0 +1,12 @@
+{
+  "name": "software_update",
+  "version": "1.0.0",
+  "description": "Production Software Update Manager orchestrating WinGet, Windows Update, and Microsoft Store.",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "system_control",
+    "process",
+    "network"
+  ]
+}

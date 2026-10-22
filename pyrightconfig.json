@@ -1,0 +1,19 @@
+{
+  "include": ["."],
+  "exclude": [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "reportMissingModuleSource": "none",
+  "useLibraryCodeForTypes": true,
+  "extraPaths": [
+    ".",
+    "c:/Data/Jarvis_19-09-2026"
+  ]
+}

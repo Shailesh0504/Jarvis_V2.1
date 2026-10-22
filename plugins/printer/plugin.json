@@ -1,0 +1,8 @@
+{
+  "name": "printer",
+  "version": "1.0.0",
+  "description": "Windows printer manager and document printing controller.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control", "filesystem"],
+  "enabled": true
+}

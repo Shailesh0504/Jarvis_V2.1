@@ -1,0 +1,58 @@
+[
+  {
+    "id": "golden_greeting_01",
+    "category": "conversation",
+    "speech_act": "CHIT_CHAT",
+    "input": "hi jarvis",
+    "expected_contains": ["hey", "hello", "hi", "namaste", "shailesh", "sir", "boss", "good", "kaise"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_identity_02",
+    "category": "conversation",
+    "speech_act": "CHIT_CHAT",
+    "input": "tum kaun ho",
+    "expected_contains": ["jarvis", "assistant", "ai"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_capability_question_03",
+    "category": "speech_act_gating",
+    "speech_act": "CAPABILITY_QUESTION",
+    "input": "kya tum chrome open kar sakte ho",
+    "expected_contains": ["haan", "kar sakta", "bilkul", "yes"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_status_question_04",
+    "category": "speech_act_gating",
+    "speech_act": "STATUS_QUESTION",
+    "input": "chrome open hai kya",
+    "expected_contains": ["chrome", "open", "running", "chalu", "nahi"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_knowledge_05",
+    "category": "knowledge",
+    "speech_act": "EXPLANATION",
+    "input": "India ki capital kya hai",
+    "expected_contains": ["delhi", "new delhi", "capital"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_cancellation_06",
+    "category": "cancellation",
+    "speech_act": "CANCELLATION",
+    "input": "stop",
+    "expected_contains": ["cancel", "ruk", "stopped"],
+    "allow_execution": false
+  },
+  {
+    "id": "golden_fast_path_volume_07",
+    "category": "fast_path",
+    "speech_act": "ACTION_COMMAND",
+    "input": "volume 50 karo",
+    "expected_contains": ["volume", "50", "set", "percent"],
+    "allow_execution": true
+  }
+]

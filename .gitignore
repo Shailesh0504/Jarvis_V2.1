@@ -1,0 +1,36 @@
+# Virtual environments and Python-generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+config.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# User data, runtime state, logs, and local backups
+data/
+logs/
+backup/
+backups/
+*.log
+
+# Caches and test output
+.freebuff/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.vscode/
+
+# Local scratch files
+scratch/
+scratch_tb.png

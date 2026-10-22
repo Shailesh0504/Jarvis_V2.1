@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Jarvis V2.1 System Architecture - Live Runtime",
+    "subtitle": "Jarvis V2.1 System Architecture - Verified Closed-Loop Execution: Perception → STT → Gate → Context → Fast Path → Speech-Act → SemanticExecutor → Target → Strategy → OutcomeAdapter → VerificationLayer → TurnOutcome → TTS",
+    "output": "plugins/archify/jarvis-architecture.html",
+    "quality_profile": "showcase",
+    "canvas_width": 1650,
+    "canvas_height": 720,
+    "views": [
+      {
+        "id": "laya-core-orchestration",
+        "label": "Laya Core Tri-Bridge Orchestration Layer",
+        "focus": ["user", "camera_sensor", "gui", "stt_audio", "gate_auth", "laya_core", "fast_path", "conv_context", "speech_act_nlu", "autonomous_agent", "semantic_executor", "exec_strategy", "verification_layer", "turn_outcome", "response_policy", "tts_stream"],
+        "note": "Authoritative Laya Core Tri-Bridge Architecture: JARVIS UI/Voice/Vision -> LAYA CORE -> Tri-Bridge Routing [1. Fast Router (Tools) | 2. Chat/LLM (Qwen/etc.) | 3. Agent Planner (Task Graph)] -> Execution Layer -> Physical Verification -> Response Policy -> TTS Stream."
+      },
+      {
+        "id": "runtime-execution-path",
+        "label": "Primary Voice Execution Pipeline",
+        "focus": ["user", "camera_sensor", "gui", "stt_audio", "gate_auth", "laya_core", "conv_context", "multi_memory", "fast_path", "dialog_workflow", "speech_act_nlu", "semantic_executor", "target_discovery", "window_resolver", "exec_strategy", "verification_layer", "outcome_adapter", "outcome_hook", "response_policy", "tts_stream"],
+        "note": "Primary runtime path (~85% of real turns): Voice/Vision → Face Auth → LAYA CORE → Fast Path bypass OR Dialog → Speech-Act Gate → SemanticActionExecutor → Target Resolution → Win32 Strategy → OutcomeAdapter → Physical Verification → TurnOutcome → Spoken Response."
+      },
+      {
+        "id": "closed-loop-outcome-pipeline",
+        "label": "Phase 3.0-B: Closed-Loop Outcome Pipeline",
+        "focus": ["semantic_executor", "outcome_adapter", "plugin_verifier", "verification_layer", "outcome_hook", "turn_outcome", "event_bus", "learning_engine", "multi_memory"],
+        "note": "Phase 3.0-B closed-loop: SemanticExecutor (B2 primary handlers) and plugin path both feed ExecutionResult → OutcomeAdapter (normalizes ActionOutcome + PluginResult) → PluginVerificationBridge (physical state check) → ExecutionVerificationLayer → TurnOutcome via ExecutionOutcomeHook. Telemetry emits exactly once. Learning is policy-gated, no routine noise."
+      },
+      {
+        "id": "agent-plugin-fallback-path",
+        "label": "Autonomous Agent & Plugin Fallback Routing",
+        "focus": ["speech_act_nlu", "autonomous_agent", "agent_memory", "knowledge_engine", "cmd_router", "plugin_manager", "plugin_verifier", "plugin_system", "plugin_media", "plugin_prod"],
+        "note": "Secondary paths: Multi-step goal decomposition via AutonomousAgent+AgentTaskMemory, Knowledge/IT reasoning, and plugin fallback via CommandRouter → PluginManager → PluginVerificationBridge → physical verification → TurnOutcome."
+      },
+      {
+        "id": "proactive-learning-observability",
+        "label": "Observability, Memory & Continuous Self-Improvement",
+        "focus": ["dialog_workflow", "event_bus", "latency_tracker", "activity_observer", "pattern_engine", "multi_memory", "learning_engine", "live_update", "sqlite_stores", "outcome_hook"],
+        "note": "Out-of-band telemetry, cognitive memory persistence, habit mining, continuous mistake learning with correction back-propagation. ExecutionOutcomeHook emits execution.outcome events which feed the learning and latency subsystems."
+      }
+    ]
+  },
+  "components": [
+    { "id": "camera_sensor",  "type": "external",    "label": "Camera / Vision",           "sublabel": "Biometric Face Frame",       "pos": [40, 80],   "size": [135, 52], "tag": "Live Camera" },
+    { "id": "user",           "type": "external",    "label": "User Voice / Text",        "sublabel": "Microphone / Keyboard",      "pos": [40, 180],  "size": [135, 52] },
+    { "id": "gui",            "type": "frontend",    "label": "Jarvis Cyber GUI",          "sublabel": "PySide6 HUD & Waveform",    "pos": [205, 80],  "size": [145, 52], "tag": "9 Reactive Views" },
+    { "id": "stt_audio",      "type": "backend",     "label": "VoiceListener / STT",       "sublabel": "Cached SpeechRecognizer",   "pos": [205, 180], "size": [145, 52], "tag": "En/Hi/Hinglish" },
+    { "id": "gate_auth",      "type": "security",    "label": "Interaction Gate",          "sublabel": "Face / Voice PIN / Gate", "pos": [205, 275], "size": [145, 52], "tag": "Fail-Closed" },
+    { "id": "tts_stream",     "type": "external",    "label": "Streaming Audio TTS",       "sublabel": "TTSStreamer (BytesIO)",      "pos": [205, 370], "size": [145, 52], "tag": "Zero-Persistence" },
+
+    { "id": "fast_path",      "type": "backend",     "label": "Fast Command Path",         "sublabel": "Fast Router (<10ms bypass)","pos": [405, 80],  "size": [155, 52], "tag": "<10ms Response" },
+    { "id": "laya_core",      "type": "backend",     "label": "LAYA CORE",                 "sublabel": "Tri-Bridge Orchestrator",   "pos": [405, 180], "size": [155, 52], "tag": "Master SSOT" },
+    { "id": "conv_context",   "type": "backend",     "label": "Conversation / Context",    "sublabel": "ConversationManager+TurnContext", "pos": [405, 275], "size": [155, 52], "tag": "Scoped Context" },
+    { "id": "turn_outcome",   "type": "security",    "label": "TurnOutcome / Status",      "sublabel": "VERIFIED/UNVERIFIED/FAILED", "pos": [405, 370], "size": [155, 48], "tag": "Phase 3.0-B1" },
+    { "id": "response_policy","type": "backend",     "label": "Response Policy",           "sublabel": "ConversationalFormatter",   "pos": [405, 445], "size": [155, 52], "tag": "Human Feedback" },
+
+    { "id": "dialog_workflow","type": "backend",     "label": "Dialog / Workflow Lock",    "sublabel": "DialogManager & Confirms",  "pos": [595, 80],  "size": [155, 52], "tag": "Slot Filling & Repair" },
+    { "id": "speech_act_nlu", "type": "backend",     "label": "Speech-Act / NLU",          "sublabel": "HinglishNLU & SpeechActGate","pos": [595, 180], "size": [155, 52], "tag": "Anti-Execution Gate" },
+    { "id": "outcome_hook",   "type": "backend",     "label": "ExecutionOutcomeHook",      "sublabel": "Telemetry + Learning Gate", "pos": [595, 275], "size": [155, 48], "tag": "Phase 3.0-B1" },
+    { "id": "outcome_adapter","type": "backend",     "label": "OutcomeAdapter",            "sublabel": "Normalize ActionOutcome+PluginResult","pos": [595, 370], "size": [155, 48], "tag": "Phase 3.0-B1" },
+
+    { "id": "semantic_executor","type": "backend",   "label": "SemanticActionExecutor",    "sublabel": "Primary Execution Engine",  "pos": [785, 180], "size": [160, 52], "tag": "B2: 5 Verified Handlers" },
+    { "id": "exec_strategy",  "type": "backend",     "label": "Execution Strategy",        "sublabel": "Win32 / Risk-Gated Spawner", "pos": [785, 275], "size": [160, 48], "tag": "Risk Gated" },
+    { "id": "verification_layer", "type": "security","label": "ExecutionVerificationLayer","sublabel": "Process/Window/Browser/File","pos": [785, 370], "size": [160, 48], "tag": "State Validated" },
+    { "id": "plugin_verifier","type": "security",    "label": "PluginVerificationBridge",  "sublabel": "Browser/App/VLC/Windows",  "pos": [785, 435], "size": [160, 46], "tag": "Phase 3.0-B3-B" },
+
+    { "id": "target_discovery","type": "backend",    "label": "Target Discovery",          "sublabel": "UniversalTargetEngine",     "pos": [980, 180], "size": [155, 52], "tag": "App vs Web vs File" },
+    { "id": "window_resolver","type": "backend",     "label": "Window Resolver",           "sublabel": "UniversalWindowResolver",   "pos": [980, 275], "size": [155, 48], "tag": "HWND & PID Scorer" },
+
+    { "id": "knowledge_engine","type": "backend",    "label": "Knowledge Engine",          "sublabel": "GK & 6-Phase IT Engine",   "pos": [1185, 80], "size": [155, 52], "tag": "Zero-Command Exec" },
+    { "id": "cmd_router",     "type": "backend",     "label": "Command Router",            "sublabel": "Legacy Intent Dispatcher",  "pos": [1185, 180],"size": [155, 52], "tag": "Fallback Tier" },
+    { "id": "plugin_manager", "type": "backend",     "label": "Plugin Manager",            "sublabel": "39+ Domain Skill Plugins",  "pos": [1185, 275],"size": [155, 52], "tag": "Lazy Loading" },
+
+    { "id": "autonomous_agent","type": "backend",    "label": "Autonomous Agent",          "sublabel": "Multi-Step Goal Planner",   "pos": [1375, 80], "size": [150, 52], "tag": "Goal Decomposition" },
+    { "id": "agent_memory",   "type": "database",    "label": "Agent Task Memory",         "sublabel": "AgentTaskMemory Graph",     "pos": [1375, 150],"size": [150, 46] },
+    { "id": "plugin_system",  "type": "backend",     "label": "System / Power",            "sublabel": "Power, Volume, Display",    "pos": [1375, 225],"size": [150, 36] },
+    { "id": "plugin_media",   "type": "backend",     "label": "Media / Web",               "sublabel": "YouTube, VLC, Browser",     "pos": [1375, 275],"size": [150, 36] },
+    { "id": "plugin_prod",    "type": "backend",     "label": "Office / Comms",            "sublabel": "Excel, PDF, WhatsApp, Email","pos": [1375, 325],"size": [150, 36] },
+
+    { "id": "latency_tracker","type": "backend",     "label": "Latency Tracker",           "sublabel": "PipelineLatencyTracker",    "pos": [40, 545],  "size": [145, 48], "tag": "Stage Metrics" },
+    { "id": "event_bus",      "type": "messagebus",  "label": "Pub/Sub EventBus",          "sublabel": "Async Telemetry Stream",    "pos": [230, 545], "size": [150, 48], "tag": "Thread-Safe Core" },
+    { "id": "live_update",    "type": "security",    "label": "Live Update Manager",       "sublabel": "In-Process Hot Reloader",   "pos": [425, 545], "size": [150, 48], "tag": "Zero-Downtime" },
+    { "id": "activity_observer","type": "backend",   "label": "Activity Observer",         "sublabel": "Window / Desktop Poller",   "pos": [620, 545], "size": [150, 48] },
+    { "id": "pattern_engine", "type": "backend",     "label": "Pattern Engine",            "sublabel": "Habit & Routine Mining",    "pos": [815, 545], "size": [150, 48] },
+    { "id": "learning_engine","type": "backend",     "label": "Continuous Learning",       "sublabel": "LogLearner & 5 Tiers",      "pos": [1010, 545],"size": [155, 48], "tag": "Correction Hook" },
+    { "id": "multi_memory",   "type": "database",    "label": "Cognitive Memory",          "sublabel": "Working/Episodic/Semantic", "pos": [1210, 545],"size": [155, 48], "tag": "Canonical SSOT" },
+    { "id": "sqlite_stores",  "type": "database",    "label": "Encrypted SQLite",          "sublabel": "jarvis.db (WAL Mode)",      "pos": [1410, 545],"size": [145, 48], "tag": "ACID Hardened" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Perception & Interaction Gate", "wraps": ["user", "camera_sensor", "gui", "stt_audio", "gate_auth", "tts_stream"] },
+    { "kind": "region", "label": "Core Execution & Closed-Loop Verification Pipeline", "wraps": ["laya_core", "conv_context", "fast_path", "dialog_workflow", "speech_act_nlu", "semantic_executor", "target_discovery", "window_resolver", "exec_strategy", "verification_layer", "outcome_adapter", "outcome_hook", "turn_outcome", "plugin_verifier", "response_policy"] },
+    { "kind": "region", "label": "Agent, Knowledge & Plugin Subsystems", "wraps": ["knowledge_engine", "autonomous_agent", "agent_memory", "cmd_router", "plugin_manager", "plugin_system", "plugin_media", "plugin_prod"] },
+    { "kind": "region", "label": "Telemetry, Cognitive Memory & Continuous Learning", "wraps": ["latency_tracker", "event_bus", "live_update", "activity_observer", "pattern_engine", "learning_engine", "multi_memory", "sqlite_stores"] }
+  ],
+  "connections": [
+    { "from": "user",           "to": "stt_audio",       "label": "speech audio",           "variant": "emphasis" },
+    { "from": "user",           "to": "gui",             "label": "UI action",              "variant": "emphasis", "route": [[175, 195], [190, 195], [190, 106], [205, 106]] },
+    { "from": "camera_sensor",  "to": "gate_auth",       "label": "biometric frame / PIN fallback", "variant": "security", "route": [[175, 106], [190, 106], [190, 301], [205, 301]] },
+    { "from": "stt_audio",      "to": "gate_auth",       "label": "transcript",             "variant": "emphasis" },
+    { "from": "gate_auth",      "to": "laya_core",       "label": "authorized turn",        "variant": "security", "route": [[350, 301], [380, 301], [380, 206], [405, 206]] },
+
+    { "from": "laya_core",      "to": "fast_path",       "label": "1. Fast Router (Tools)", "variant": "emphasis" },
+    { "from": "laya_core",      "to": "conv_context",    "label": "2. Chat/LLM (Scoped)",   "variant": "emphasis" },
+    { "from": "laya_core",      "to": "autonomous_agent","label": "3. Agent Planner",       "variant": "emphasis", "route": [[482, 180], [482, 45], [1450, 45], [1450, 80]] },
+
+    { "from": "fast_path",      "to": "exec_strategy",   "label": "direct execute",         "variant": "emphasis", "route": [[482, 80], [482, 60], [765, 60], [765, 299], [785, 299]] },
+    { "from": "fast_path",      "to": "response_policy", "label": "fast result",            "variant": "emphasis", "route": [[405, 106], [380, 106], [380, 396], [405, 396]] },
+
+    { "from": "conv_context",   "to": "dialog_workflow", "label": "context turn",           "variant": "emphasis", "route": [[560, 290], [578, 290], [578, 106], [595, 106]] },
+    { "from": "dialog_workflow","to": "speech_act_nlu",  "label": "unlocked turn",          "variant": "emphasis" },
+    { "from": "dialog_workflow","to": "response_policy", "label": "slot prompt / confirm",  "variant": "dashed",   "route": [[595, 120], [575, 120], [575, 380], [405, 380]] },
+
+    { "from": "speech_act_nlu", "to": "semantic_executor","label": "primary action (85%+)", "variant": "emphasis" },
+    { "from": "semantic_executor","to": "target_discovery","label": "resolve target",       "variant": "emphasis" },
+    { "from": "target_discovery","to": "window_resolver","label": "score HWND/PID",         "variant": "emphasis" },
+    { "from": "window_resolver","to": "exec_strategy",   "label": "pre-risk evaluated",     "variant": "security" },
+
+    { "from": "exec_strategy",  "to": "outcome_adapter", "label": "ExecutionResult",        "variant": "security", "route": [[785, 310], [765, 310], [765, 394], [750, 394]] },
+    { "from": "semantic_executor","to": "outcome_adapter","label": "B2: primary handlers",  "variant": "security", "route": [[865, 232], [865, 255], [770, 255], [770, 380], [750, 380]] },
+    { "from": "outcome_adapter","to": "verification_layer","label": "verify physical state", "variant": "security" },
+    { "from": "plugin_verifier","to": "verification_layer","label": "physical check",       "variant": "security" },
+    { "from": "verification_layer","to": "outcome_hook", "label": "VerificationResult",     "variant": "emphasis", "route": [[785, 385], [760, 385], [760, 299], [750, 299]] },
+    { "from": "outcome_hook",   "to": "turn_outcome",    "label": "resolve status",         "variant": "emphasis" },
+    { "from": "turn_outcome",   "to": "conv_context",    "label": "execution_outcome field", "variant": "dashed" },
+    { "from": "turn_outcome",   "to": "response_policy", "label": "outcome status",         "variant": "emphasis" },
+    { "from": "response_policy","to": "tts_stream",      "label": "spoken stream",          "variant": "emphasis" },
+    { "from": "response_policy","to": "gui",             "label": "visual feedback",        "variant": "dashed",   "route": [[405, 380], [380, 380], [380, 106], [350, 106]] },
+
+    { "from": "speech_act_nlu", "to": "knowledge_engine","label": "GK / IT query",         "variant": "dashed",   "route": [[750, 190], [765, 190], [765, 60], [1160, 60], [1160, 106], [1185, 106]] },
+    { "from": "knowledge_engine","to": "response_policy","label": "explanation",            "variant": "emphasis", "route": [[1185, 115], [1160, 115], [1160, 498], [482, 498], [482, 422]] },
+    { "from": "speech_act_nlu", "to": "autonomous_agent","label": "complex goal",           "variant": "dashed",   "route": [[750, 185], [765, 185], [765, 50], [1390, 50], [1390, 80]] },
+    { "from": "autonomous_agent","to": "agent_memory",   "label": "task graph",             "variant": "dashed" },
+    { "from": "agent_memory",   "to": "sqlite_stores",   "label": "task & checkpoint sync", "variant": "security", "route": [[1450, 196], [1450, 545]] },
+    { "from": "autonomous_agent","to": "semantic_executor","label": "sub-steps",            "variant": "dashed",   "route": [[1450, 80], [1450, 60], [1155, 60], [1155, 155], [865, 155], [865, 180]] },
+    { "from": "speech_act_nlu", "to": "cmd_router",      "label": "fallback intent",        "variant": "dashed",   "route": [[750, 195], [770, 195], [770, 150], [1165, 150], [1185, 195]] },
+    { "from": "cmd_router",     "to": "plugin_manager",  "label": "domain plugin",          "variant": "dashed" },
+    { "from": "plugin_manager", "to": "plugin_system",                                       "variant": "dashed",   "route": [[1340, 290], [1355, 290], [1355, 243], [1375, 243]] },
+    { "from": "plugin_manager", "to": "plugin_media",                                        "variant": "dashed" },
+    { "from": "plugin_manager", "to": "plugin_prod",                                         "variant": "dashed",   "route": [[1340, 310], [1355, 310], [1355, 343], [1375, 343]] },
+    { "from": "plugin_manager", "to": "outcome_adapter", "label": "PluginResult",           "variant": "security", "route": [[1185, 301], [1160, 301], [1160, 498], [672, 498], [672, 418]] },
+    { "from": "plugin_manager", "to": "plugin_verifier", "label": "B3-B verify",            "variant": "security", "route": [[1185, 315], [1160, 315], [1160, 458], [945, 458]] },
+
+    { "from": "outcome_hook",   "to": "event_bus",       "label": "execution.outcome event","variant": "dashed",   "route": [[750, 299], [765, 299], [765, 502], [305, 502], [305, 545]] },
+    { "from": "outcome_hook",   "to": "latency_tracker", "label": "turn duration",          "variant": "dashed",   "route": [[595, 315], [580, 315], [580, 345], [380, 345], [380, 502], [112, 502], [112, 545]] },
+    { "from": "outcome_hook",   "to": "learning_engine", "label": "eligible failures",      "variant": "security", "route": [[750, 305], [765, 305], [765, 502], [1087, 502], [1087, 545]] },
+    { "from": "event_bus",      "to": "activity_observer","label": "",                      "variant": "dashed",   "route": [[380, 560], [400, 560], [400, 525], [640, 525], [640, 545]] },
+    { "from": "live_update",    "to": "event_bus",        "label": "hot reload event",      "variant": "security" },
+    { "from": "activity_observer","to": "pattern_engine","label": "window logs",            "variant": "dashed" },
+    { "from": "pattern_engine", "to": "learning_engine", "label": "habit data",            "variant": "dashed" },
+    { "from": "learning_engine","to": "multi_memory",    "label": "persist learned facts",  "variant": "emphasis" },
+    { "from": "learning_engine","to": "target_discovery","label": "update alias/mistakes",  "variant": "security", "route": [[1087, 545], [1087, 500], [1145, 500], [1145, 206], [1135, 206]] },
+    { "from": "multi_memory",   "to": "sqlite_stores",   "label": "WAL commit",             "variant": "emphasis" },
+    { "from": "multi_memory",   "to": "conv_context",    "label": "retrieve facts & identity","variant": "emphasis", "route": [[1287, 545], [1287, 505], [575, 505], [575, 206], [560, 206]] }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "LAYA CORE: Authoritative Tri-Bridge Orchestration Layer",
+      "items": [
+        "1. Command direct execute hogi ya nahi: FastPath vs Conversational vs Agent Goal",
+        "2. Conversation model ko bhejna hai: Route to Chat/LLM (DualBrain / Qwen / Local Models)",
+        "3. Complex task ke liye agent activate karna hai: Route to Agent Planner / Task Graph via AutonomousAgent",
+        "4. Kaunsa model use hoga: Deterministic rule fast vs Local Qwen vs Cloud LLM vs Agent Planner",
+        "5. Context kitna dena hai: Dynamic context scoping (NONE, MINIMAL, ACTIVE_WINDOW, CONVERSATIONAL, FULL)",
+        "6. Memory kab retrieve karni hai: Selective gating for facts/preferences; bypass for tools (<15ms)",
+        "7. Confirmation chahiye ya nahi: Risk-gated policy (LOW execute vs HIGH/CRITICAL explicit confirmation)",
+        "8. Task successful hua ya nahi: Closed-loop physical verification via ExecutionVerificationLayer",
+        "9. Failure par retry/fallback kya hai: Closed-loop fallback strategy (retry_alternate, web_search, clarify)"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Primary Execution Pipeline (85%+ Turns)",
+      "items": [
+        "Voice → STT → FaceAuth Gate → ConversationManager+TurnContext → 10ms Fast Path bypass OR Dialog lock → Speech-Act Gate → SemanticActionExecutor",
+        "UniversalTargetEngine resolves desktop apps vs websites vs local files before execution via Win32/Process Strategy",
+        "ExecutionStrategy streams conversational ack (<50ms) while async verification completes via ExecutionVerificationLayer",
+        "Phase 3.0-B2: Five primary handlers (window, folder, app launch, file, website) each produce a verified ExecutionResult",
+        "OutcomeAdapter normalizes ActionOutcome+ExecutionResult → ExecutionOutcomeHook → TurnOutcome stored in TurnContext.execution_outcome"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Phase 3.0-B: Closed-Loop Outcome Infrastructure",
+      "items": [
+        "B1: TurnOutcome + TurnOutcomeStatus (VERIFIED/UNVERIFIED/AMBIGUOUS/FAILED/PARTIAL) + OutcomeAdapter + ExecutionOutcomeHook — zero runtime wiring",
+        "B2: OutcomeAdapter+Hook wired into 5 SemanticActionExecutor primary handlers (window/folder/app/file/website)",
+        "B3-A: OutcomeAdapter+Hook wired into plugin/fallback path. UNVERIFIED invariant: plugin success=True without real VerificationResult → UNVERIFIED",
+        "B3-B: PluginVerificationBridge — maps (service, action) to existing ExecutionVerificationLayer methods. Verifiable: browser/youtube/apps/vlc/excel/windows. All others → UNVERIFIED (not FAILED)",
+        "Telemetry emits exactly one execution.outcome event per turn. Learning is policy-gated — no routine success noise"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Reasoning, Observability & Self-Improvement",
+      "items": [
+        "AutonomousAgent decomposes multi-step goals into execution graphs via AgentTaskMemory",
+        "Knowledge Engine: zero-command-execution GK facts + 6-phase structured IT troubleshooting (Windows 10/11, Server 2019, Azure, Networking)",
+        "PipelineLatencyTracker benchmarks every stage (STT, Intent, Exec, TTS) to sub-300ms SLA; Activity Observer polls window/desktop state",
+        "Cognitive Memory (Working/Episodic/Semantic/Entity/Correction) persists to ACID WAL SQLite — single authoritative SSOT",
+        "5-Layer LearningManager: LogLearner extracts corrections; back-propagates mistake avoidance to TargetDiscovery. Live Update Manager enables zero-downtime hot reloading"
+      ]
+    }
+  ]
+}

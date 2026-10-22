@@ -1,0 +1,8 @@
+{
+  "name": "camera",
+  "version": "1.0.0",
+  "description": "Webcam photo capture and camera controller.",
+  "author": "Jarvis Team",
+  "permissions": ["camera", "filesystem"],
+  "enabled": true
+}

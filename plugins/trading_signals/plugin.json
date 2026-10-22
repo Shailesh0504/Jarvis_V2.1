@@ -1,0 +1,12 @@
+{
+  "name": "trading_signals",
+  "version": "1.0.0",
+  "description": "Screen-Only Live Options Buy/Exit Signal Engine for NIFTY Index and Option confluence (Signal-Only Decision Support).",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:TradingSignalsPlugin",
+  "permissions": [
+    "screen"
+  ],
+  "dependencies": []
+}

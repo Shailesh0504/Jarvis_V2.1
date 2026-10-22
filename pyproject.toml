@@ -1,0 +1,6 @@
+[tool.pyrefly]
+search_path = ["."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = [".venv", "backups", "build", "dist", "data", ".git"]

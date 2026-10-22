@@ -1,0 +1,10 @@
+{
+  "name": "equity_research",
+  "version": "1.0.0",
+  "description": "Indian Equity 1-Month Investment Research and Decision-Support Engine.",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "network"
+  ]
+}

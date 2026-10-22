@@ -1,0 +1,11 @@
+{
+  "name": "laya",
+  "version": "1.0.0",
+  "description": "Laya System-1 Decision Engine: fast multilingual intent routing, guardrails and confidence scoring. Download + status + test via voice or Settings.",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "network",
+    "storage"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "reminder",
+  "version": "1.0.0",
+  "description": "Offline persistent reminder engine with background scheduling, recurrence, and alerts.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control", "filesystem"],
+  "enabled": true
+}

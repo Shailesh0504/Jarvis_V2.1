@@ -1,0 +1,11 @@
+{
+  "name": "system",
+  "version": "1.0.0",
+  "description": "System Diagnostics, Volume, Screenshot and Power Controls",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "permissions": [
+    "system_control",
+    "process"
+  ]
+}

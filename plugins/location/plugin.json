@@ -1,0 +1,8 @@
+{
+  "name": "location",
+  "version": "2.0.0",
+  "description": "Universal local offline geography, place resolution, distance calculation, and zero-API web maps plugin.",
+  "author": "Jarvis Team",
+  "permissions": ["network"],
+  "enabled": true
+}

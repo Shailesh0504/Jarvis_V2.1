@@ -1,0 +1,8 @@
+{
+  "name": "screen",
+  "version": "1.0.0",
+  "description": "Screen capability plugin for screenshots, screen recording, and visual snapshots.",
+  "author": "Jarvis Team",
+  "permissions": ["system_control"],
+  "entrypoint": "plugin.py:ScreenPlugin"
+}

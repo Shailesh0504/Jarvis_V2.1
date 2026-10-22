@@ -1,0 +1,13 @@
+{
+  "name": "youtube",
+  "version": "2.0.0",
+  "description": "No-API YouTube search, direct playback, controls, session and queue subsystem",
+  "author": "Jarvis Team",
+  "enabled": true,
+  "entry_point": "plugin:YouTubePlugin",
+  "permissions": [
+    "network",
+    "browser"
+  ],
+  "dependencies": []
+}
