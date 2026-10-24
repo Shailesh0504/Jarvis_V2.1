@@ -63,7 +63,7 @@ and no model or dependency download is required for these improvements.
 ## 🌟 Key Highlights & Capabilities
 
 - 🗣️ **Multilingual Perception**: Natural voice recognition and command execution across **English, Hindi, and Hinglish** (*"Chrome kholo aur usme YouTube play karo"*).
-- 🔒 **Biometric Security Gate**: Local OpenCV facial authentication gating sensitive operations, with master PIN fallback.
+- 🔒 **Biometric Security Gate**: Local OpenCV facial authentication gating sensitive operations, with master PIN 1234 fallback.
 - ⚡ **Universal Action Verifier**: Guarantees truthful execution reporting — verifies window handles, browser URLs, and process states before confirming completion.
 - 🧠 **Multi-Tier Cognitive Memory**: Working, Short-Term, Episodic, Semantic, Procedural, and Activity memory backed by SQLite WAL.
 - 👁️ **Proactive Intelligence**: Non-intrusive background observer tracking active apps and mining recurring habits without external tracking.
